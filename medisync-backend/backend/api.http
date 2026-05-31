@@ -1,0 +1,31 @@
+### Login patient
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "patient@medisync.local",
+  "password": "Patient@1234"
+}
+
+### Lister les medecins
+GET http://localhost:8080/api/doctors
+
+### Prendre un rendez-vous
+POST http://localhost:8080/api/appointments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "doctorId": 1,
+  "startsAt": "2026-05-11T10:30:00",
+  "durationMinutes": 30,
+  "reason": "Consultation generale"
+}
+
+### Mes rendez-vous patient
+GET http://localhost:8080/api/appointments/me
+Authorization: Bearer {{token}}
+
+### Dashboard admin
+GET http://localhost:8080/api/admin/dashboard
+Authorization: Bearer {{adminToken}}

@@ -1,0 +1,305 @@
+<div class="landing">
+  <!-- ============= NAVBAR ============= -->
+  <header class="navbar" [class.scrolled]="false">
+    <div class="container nav-inner">
+      <a class="brand" routerLink="/">
+        <app-logo class="brand-icon" [size]="34" [gradient]="true"></app-logo>
+        <span>MediSync</span>
+      </a>
+
+      <nav class="nav-links" [class.open]="menuOpen()">
+        <a (click)="scrollTo('features')">Fonctionnalités</a>
+        <a (click)="scrollTo('how')">Comment ça marche</a>
+        <a (click)="scrollTo('testimonials')">Témoignages</a>
+        <a (click)="scrollTo('cta')">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a mat-button routerLink="/auth/login">Se connecter</a>
+        <a mat-flat-button color="primary" routerLink="/auth/register">
+          Créer un compte
+        </a>
+        <button mat-icon-button class="burger" (click)="toggleMenu()">
+          <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============= HERO ============= -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container hero-inner">
+      <div class="hero-content">
+        <span class="badge" appReveal>
+          <span class="pulse"></span>
+          Plateforme certifiée RGPD
+        </span>
+
+        <h1 appReveal [revealDelay]="100">
+          Votre santé,
+          <span class="gradient-text">simplifiée.</span>
+        </h1>
+
+        <p class="lead" appReveal [revealDelay]="200">
+          MediSync centralise vos rendez-vous, votre dossier médical et vos
+          ordonnances dans une plateforme sécurisée, accessible depuis le web
+          et le mobile.
+        </p>
+
+        <div class="hero-cta" appReveal [revealDelay]="300">
+          <a mat-flat-button color="primary" class="cta-primary" routerLink="/auth/register">
+            Commencer gratuitement
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+          <a mat-stroked-button class="cta-secondary" routerLink="/auth/login">
+            J'ai déjà un compte
+          </a>
+        </div>
+
+        <div class="trust" appReveal [revealDelay]="400">
+          <div class="avatars">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80" alt="" />
+            <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=80&q=80" alt="" />
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=80&q=80" alt="" />
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80" alt="" />
+          </div>
+          <div class="trust-text">
+            <strong>50 000+ patients</strong>
+            <span>nous font confiance chaque mois</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual" appReveal [revealDelay]="200">
+        <div class="hero-image-wrap">
+          <img
+            class="hero-image"
+            src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80"
+            alt="Médecin avec une tablette"
+          />
+
+          <!-- Floating cards -->
+          <div class="float-card card-1">
+            <mat-icon>event_available</mat-icon>
+            <div>
+              <strong>Rendez-vous confirmé</strong>
+              <span>Dr Tazi · 14h30</span>
+            </div>
+          </div>
+
+          <div class="float-card card-2">
+            <div class="avatar-online"></div>
+            <div>
+              <strong>Dr Martin</strong>
+              <span>en consultation</span>
+            </div>
+          </div>
+
+          <div class="float-card card-3">
+            <mat-icon class="green">favorite</mat-icon>
+            <div>
+              <strong>Tension OK</strong>
+              <span>120 / 80 mmHg</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= STATS ============= -->
+  <section class="stats">
+    <div class="container stats-grid">
+      @for (stat of stats; track stat.label; let i = $index) {
+        <div class="stat" appReveal [revealDelay]="i * 100">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+          <span class="stat-value">{{ stat.value }}</span>
+          <span class="stat-label">{{ stat.label }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ============= FEATURES ============= -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-head" appReveal>
+        <span class="eyebrow">Fonctionnalités</span>
+        <h2>Tout ce dont vous avez besoin, au même endroit</h2>
+        <p>
+          Une expérience pensée pour les patients, les médecins, les
+          secrétaires et les administrateurs.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        @for (f of features; track f.title; let i = $index) {
+          <div class="feature-card" appReveal [revealDelay]="(i % 3) * 120">
+            <div class="feature-icon" [style.background]="f.color + '1a'" [style.color]="f.color">
+              <mat-icon>{{ f.icon }}</mat-icon>
+            </div>
+            <h3>{{ f.title }}</h3>
+            <p>{{ f.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= HOW IT WORKS ============= -->
+  <section class="how" id="how">
+    <div class="container how-inner">
+      <div class="how-visual" appReveal>
+        <img
+          src="https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=900&q=80"
+          alt="Patient utilisant l'application"
+        />
+        <div class="how-badge">
+          <mat-icon>schedule</mat-icon>
+          <div>
+            <strong>2 minutes</strong>
+            <span>pour réserver</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="how-content">
+        <span class="eyebrow" appReveal>Comment ça marche</span>
+        <h2 appReveal [revealDelay]="100">
+          Réservez en 3 étapes simples
+        </h2>
+
+        <div class="steps">
+          <div class="step" appReveal [revealDelay]="200">
+            <span class="step-num">01</span>
+            <div>
+              <h4>Créez votre compte</h4>
+              <p>Inscription rapide avec email ou via votre identité numérique.</p>
+            </div>
+          </div>
+          <div class="step" appReveal [revealDelay]="300">
+            <span class="step-num">02</span>
+            <div>
+              <h4>Choisissez votre praticien</h4>
+              <p>Filtrez par spécialité, localisation, disponibilité ou langue parlée.</p>
+            </div>
+          </div>
+          <div class="step" appReveal [revealDelay]="400">
+            <span class="step-num">03</span>
+            <div>
+              <h4>Confirmez votre rendez-vous</h4>
+              <p>Recevez immédiatement la confirmation par email et notification.</p>
+            </div>
+          </div>
+        </div>
+
+        <a mat-flat-button color="primary" class="how-cta" routerLink="/auth/register" appReveal [revealDelay]="500">
+          Commencer maintenant
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= TESTIMONIALS ============= -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="section-head" appReveal>
+        <span class="eyebrow">Témoignages</span>
+        <h2>Ils ont adopté MediSync</h2>
+      </div>
+
+      <div class="testimonials-grid">
+        @for (t of testimonials; track t.name; let i = $index) {
+          <div class="testimonial" appReveal [revealDelay]="i * 150">
+            <mat-icon class="quote-icon">format_quote</mat-icon>
+            <p>{{ t.text }}</p>
+            <div class="testimonial-author">
+              <img [src]="t.avatar" [alt]="t.name" />
+              <div>
+                <strong>{{ t.name }}</strong>
+                <span>{{ t.role }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= CTA ============= -->
+  <section class="cta" id="cta">
+    <div class="container cta-inner" appReveal>
+      <div class="cta-content">
+        <h2>Prêt à digitaliser votre santé ?</h2>
+        <p>
+          Rejoignez des milliers de patients et de professionnels de santé qui
+          ont déjà adopté MediSync.
+        </p>
+        <div class="cta-actions">
+          <a mat-flat-button color="primary" routerLink="/auth/register" class="cta-primary">
+            Créer mon compte
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+          <a mat-stroked-button routerLink="/auth/login" class="cta-secondary">
+            Se connecter
+          </a>
+        </div>
+      </div>
+      <div class="cta-image">
+        <img
+          src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?auto=format&fit=crop&w=900&q=80"
+          alt="Application mobile MediSync"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= FOOTER ============= -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <div class="brand">
+          <mat-icon class="brand-icon">medical_services</mat-icon>
+          <span>MediSync</span>
+        </div>
+        <p>La plateforme de santé qui simplifie votre quotidien.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Produit</h4>
+        <a>Fonctionnalités</a>
+        <a>Tarifs</a>
+        <a>Application mobile</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Entreprise</h4>
+        <a>À propos</a>
+        <a>Blog</a>
+        <a>Carrières</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Légal</h4>
+        <a>CGU</a>
+        <a>RGPD</a>
+        <a>Mentions légales</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© {{ currentYear }} MediSync. Tous droits réservés.</span>
+      <div class="socials">
+        <a><mat-icon>facebook</mat-icon></a>
+        <a><mat-icon>alternate_email</mat-icon></a>
+        <a><mat-icon>language</mat-icon></a>
+      </div>
+    </div>
+  </footer>
+</div>

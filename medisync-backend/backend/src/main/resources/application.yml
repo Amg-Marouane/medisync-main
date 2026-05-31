@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: medisync-api
+  datasource:
+    url: jdbc:mysql://localhost:3306/medisync?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: "change-this-development-secret-key-change-this-development-secret-key"
+    expiration-minutes: 120
+  google:
+    client-id: "148389269636-r67m5thlem110hm8a68sp16tii34g8er.apps.googleusercontent.com"
+  cors:
+    allowed-origins:
+      - "http://localhost:4200"
+      - "http://localhost:3000"

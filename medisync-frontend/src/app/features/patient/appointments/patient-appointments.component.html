@@ -1,0 +1,97 @@
+<div class="page">
+  <app-page-header
+    eyebrow="Mes rendez-vous"
+    icon="event"
+    title="Rendez-vous"
+    subtitle="Réservez, modifiez ou consultez vos rendez-vous."
+  >
+    <button mat-flat-button color="primary">
+      <mat-icon>add</mat-icon>
+      Nouveau rendez-vous
+    </button>
+  </app-page-header>
+
+  <mat-card class="search-card">
+    <h3>Rechercher un praticien</h3>
+    <div class="search-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Spécialité</mat-label>
+        <mat-select>
+          @for (s of specialties; track s) {
+            <mat-option [value]="s">{{ s }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Localisation</mat-label>
+        <input matInput placeholder="Ville, code postal..." />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Date souhaitée</mat-label>
+        <input matInput type="date" />
+      </mat-form-field>
+      <button mat-flat-button color="primary" class="search-btn">
+        <mat-icon>search</mat-icon>
+        Rechercher
+      </button>
+    </div>
+  </mat-card>
+
+  <mat-tab-group>
+    <mat-tab label="À venir">
+      <div class="appointments-list">
+        @for (a of upcoming(); track a.id) {
+          <mat-card class="appt-card" [class]="'status-' + a.status">
+            <div class="appt-date">
+              <span class="day">{{ a.date.split(' ')[0] }}</span>
+              <span class="month">{{ a.date.split(' ')[1] }}</span>
+              <span class="time">{{ a.time }}</span>
+            </div>
+            <div class="appt-info">
+              <h4>{{ a.doctor }}</h4>
+              <p>{{ a.specialty }}</p>
+              <span class="location">
+                <mat-icon>place</mat-icon>
+                {{ a.location }}
+              </span>
+            </div>
+            <div class="appt-actions">
+              <mat-chip [class]="'chip-' + a.status">{{ statusLabel(a.status) }}</mat-chip>
+              <button mat-stroked-button>Modifier</button>
+              <button mat-button color="warn">Annuler</button>
+            </div>
+          </mat-card>
+        }
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Historique">
+      <div class="appointments-list">
+        @for (a of past(); track a.id) {
+          <mat-card class="appt-card status-completed">
+            <div class="appt-date">
+              <span class="day">{{ a.date.split(' ')[0] }}</span>
+              <span class="month">{{ a.date.split(' ')[1] }}</span>
+              <span class="time">{{ a.time }}</span>
+            </div>
+            <div class="appt-info">
+              <h4>{{ a.doctor }}</h4>
+              <p>{{ a.specialty }}</p>
+              <span class="location">
+                <mat-icon>place</mat-icon>
+                {{ a.location }}
+              </span>
+            </div>
+            <div class="appt-actions">
+              <mat-chip class="chip-completed">{{ statusLabel(a.status) }}</mat-chip>
+              <button mat-stroked-button>
+                <mat-icon>description</mat-icon>
+                Compte rendu
+              </button>
+            </div>
+          </mat-card>
+        }
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

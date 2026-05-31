@@ -1,0 +1,840 @@
+% =====================================================================
+%  MediSync — Présentation Frontend Angular
+%  Document de soutenance — Génie Informatique S4
+%  Développement Web & Mobile - Projet P5
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- Encodage & langue ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+
+% ---------- Mise en page ----------
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{parskip}
+\usepackage{microtype}
+
+% ---------- Couleurs & Boîtes ----------
+\usepackage{xcolor}
+\definecolor{primary}{HTML}{0D6EFD}
+\definecolor{secondary}{HTML}{06B6D4}
+\definecolor{accent}{HTML}{8B5CF6}
+\definecolor{darkgray}{HTML}{0F172A}
+\definecolor{mediumgray}{HTML}{475569}
+\definecolor{lightgray}{HTML}{F8FAFC}
+\definecolor{bordergray}{HTML}{E2E8F0}
+\definecolor{success}{HTML}{10B981}
+\definecolor{warning}{HTML}{F59E0B}
+\definecolor{danger}{HTML}{EF4444}
+
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+% Boîte d'information
+\newtcolorbox{infobox}[1][]{
+  enhanced, breakable,
+  colback=primary!5, colframe=primary,
+  boxrule=0pt, leftrule=4pt,
+  arc=4pt, outer arc=4pt,
+  fonttitle=\bfseries, coltitle=primary,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+  #1
+}
+
+% Boîte de succès
+\newtcolorbox{successbox}[1][]{
+  enhanced, breakable,
+  colback=success!5, colframe=success,
+  boxrule=0pt, leftrule=4pt,
+  arc=4pt, outer arc=4pt,
+  fonttitle=\bfseries, coltitle=success,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+  #1
+}
+
+% Boîte de feature
+\newtcolorbox{featurebox}[1][]{
+  enhanced, breakable,
+  colback=white, colframe=bordergray,
+  boxrule=1pt, arc=8pt, outer arc=8pt,
+  left=14pt, right=14pt, top=10pt, bottom=10pt,
+  #1
+}
+
+% ---------- Titres ----------
+\usepackage{titlesec}
+\titleformat{\section}
+  {\Large\bfseries\color{primary}}
+  {\thesection}{1em}{}
+  [\vspace{2pt}{\color{primary}\rule{\textwidth}{1.5pt}}]
+\titleformat{\subsection}
+  {\large\bfseries\color{darkgray}}
+  {\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{mediumgray}}
+  {\thesubsubsection}{0.6em}{}
+
+% ---------- Listings code ----------
+\usepackage{listings}
+\lstdefinelanguage{TypeScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, switch,
+            var, if, in, while, do, else, case, break, let, const, async,
+            await, import, from, export, default, class, extends, implements,
+            interface, public, private, readonly, static, this, signal,
+            computed, inject, Injectable, Component, Input, Output},
+  keywordstyle=\color{primary}\bfseries,
+  ndkeywords={String, number, boolean, void, any, Array, Promise, Observable,
+              Routes, CanActivateFn, HttpInterceptorFn, User, UserRole},
+  ndkeywordstyle=\color{accent}\bfseries,
+  identifierstyle=\color{darkgray},
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{mediumgray}\itshape,
+  stringstyle=\color{success},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinestyle{codestyle}{
+  language=TypeScript,
+  backgroundcolor=\color{lightgray},
+  basicstyle=\ttfamily\footnotesize\color{darkgray},
+  frame=single,
+  rulecolor=\color{bordergray},
+  framerule=1pt,
+  framesep=8pt,
+  xleftmargin=10pt,
+  xrightmargin=10pt,
+  showstringspaces=false,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny\color{mediumgray},
+  numbersep=8pt,
+  tabsize=2,
+  captionpos=b
+}
+\lstset{style=codestyle}
+
+% ---------- Tableaux & listes ----------
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*,itemsep=4pt}
+
+% ---------- Liens ----------
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=primary,
+  urlcolor=primary,
+  citecolor=accent,
+  pdftitle={MediSync - Frontend Angular},
+  pdfauthor={Equipe MediSync}
+}
+
+% ---------- Graphiques ----------
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,shadows,fit,backgrounds}
+
+% =====================================================================
+%  DEBUT DU DOCUMENT
+% =====================================================================
+\begin{document}
+
+% ============================================
+%  PAGE DE GARDE
+% ============================================
+\begin{titlepage}
+\begin{tikzpicture}[remember picture, overlay]
+  \fill[primary] (current page.north west) rectangle ([yshift=-3cm]current page.north east);
+  \fill[secondary] ([yshift=-3cm]current page.north west) rectangle ([yshift=-3.3cm]current page.north east);
+\end{tikzpicture}
+
+\vspace{0.5cm}
+\begin{center}
+{\color{white}\Huge\bfseries MediSync}\\[0.3cm]
+{\color{white}\Large Système de Gestion de Clinique Médicale}
+\end{center}
+
+\vspace{3cm}
+
+\begin{center}
+\begin{tcolorbox}[
+  enhanced, colback=white, colframe=primary,
+  boxrule=2pt, arc=12pt, width=0.85\textwidth,
+  drop shadow={shadow xshift=0pt, shadow yshift=-4pt, opacity=0.15}
+]
+\centering
+{\color{primary}\Huge\bfseries Partie Frontend}\\[0.4cm]
+{\Large\color{darkgray} Architecture, Conception \& Réalisation}\\[0.6cm]
+{\large\color{mediumgray} avec Angular 21 \& Angular Material}\\[1cm]
+
+{\color{primary}\rule{0.5\textwidth}{1pt}}\\[0.5cm]
+
+{\large\bfseries Soutenance de Projet}\\[0.2cm]
+{\normalsize Développement Web \& Mobile - P5}\\[0.2cm]
+{\normalsize Génie Informatique - Semestre 4}\\[0.6cm]
+
+{\color{mediumgray}\large 03 Juin 2026}
+\end{tcolorbox}
+\end{center}
+
+\vfill
+
+\begin{tikzpicture}[remember picture, overlay]
+  \fill[primary] ([yshift=2.5cm]current page.south west) rectangle (current page.south east);
+\end{tikzpicture}
+
+\begin{center}
+\vspace{1cm}
+{\color{white}\large\bfseries Équipe MediSync}\\[0.2cm]
+{\color{white} Génie Informatique S4 \textbar{} Année universitaire 2025-2026}
+\end{center}
+
+\end{titlepage}
+
+% ============================================
+%  TABLE DES MATIERES
+% ============================================
+\renewcommand{\contentsname}{\color{primary}\textbf{Sommaire}}
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+% ============================================
+%  1. INTRODUCTION
+% ============================================
+\section{Introduction}
+
+\subsection{Présentation du projet MediSync}
+
+\textbf{MediSync} est une plateforme web et mobile dédiée à la digitalisation
+de la gestion d'une clinique médicale multi-praticiens. Le système centralise
+la prise de rendez-vous, la gestion des dossiers patients, les ordonnances
+électroniques et le pilotage administratif au sein d'une expérience utilisateur
+cohérente et sécurisée.
+
+\begin{infobox}[title={Objectifs métiers}]
+\begin{itemize}
+  \item \textbf{Patients} : prise de rendez-vous, accès au dossier médical, suivi des ordonnances.
+  \item \textbf{Personnel médical} : gestion du planning, comptes rendus, prescriptions électroniques.
+  \item \textbf{Secrétariat} : création de comptes patients, facturation.
+  \item \textbf{Administration} : pilotage global, statistiques, conformité.
+\end{itemize}
+\end{infobox}
+
+\subsection{Périmètre de la partie frontend}
+
+La partie frontend constitue \textbf{l'interface utilisateur principale}
+du système. Elle est responsable de :
+
+\begin{itemize}
+  \item Présenter l'application au grand public via une \textbf{landing page} engageante.
+  \item Assurer l'\textbf{authentification} et la gestion des sessions utilisateurs.
+  \item Fournir un \textbf{tableau de bord adapté} à chacun des quatre rôles métier.
+  \item Communiquer avec l'API REST sécurisée (\textbf{Spring Boot}) via JWT.
+  \item Garantir une expérience utilisateur \textbf{responsive}, accessible et fluide.
+\end{itemize}
+
+\newpage
+
+% ============================================
+%  2. STACK TECHNIQUE
+% ============================================
+\section{Stack technique}
+
+\subsection{Choix technologiques}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\columncolor{lightgray}}lX}
+\toprule
+\rowcolor{primary!10}
+\textbf{Couche} & \textbf{Technologie retenue} \\
+\midrule
+Framework & \textbf{Angular 21} (composants standalone, signaux) \\
+Langage & \textbf{TypeScript 5.7} avec mode strict \\
+UI Components & \textbf{Angular Material 21} (Material Design 3, thème \emph{azure-blue}) \\
+Styles & \textbf{SCSS} avec variables CSS et design tokens \\
+Routing & \textbf{Angular Router} avec lazy-loading et route guards \\
+Formulaires & \textbf{Reactive Forms} avec validateurs personnalisés \\
+HTTP & \texttt{HttpClient} avec intercepteurs JWT \\
+Charts & \textbf{Chart.js + ng2-charts} \\
+Animations & CSS keyframes + IntersectionObserver \\
+\bottomrule
+\end{tabularx}
+\caption{Stack technique du frontend}
+\end{table}
+
+\subsection{Pourquoi Angular ?}
+
+Angular a été \textbf{imposé par le cahier des charges}, mais son adoption se
+justifie pleinement :
+
+\begin{itemize}
+  \item \textbf{Framework opinionated} : structure claire pour un projet d'équipe.
+  \item \textbf{TypeScript natif} : sécurité de types essentielle dans un contexte médical.
+  \item \textbf{Signaux et standalone components} : performances optimales (Angular 16+).
+  \item \textbf{Écosystème mature} : Angular Material couvre 95\% des besoins UI.
+  \item \textbf{RxJS} : gestion réactive des flux asynchrones (API, formulaires).
+\end{itemize}
+
+\newpage
+
+% ============================================
+%  3. ARCHITECTURE
+% ============================================
+\section{Architecture frontend}
+
+\subsection{Organisation modulaire}
+
+L'application est organisée selon le pattern \textbf{Core / Shared / Features},
+recommandé par la communauté Angular pour les projets de taille moyenne à
+grande.
+
+\begin{lstlisting}[language={}, basicstyle=\ttfamily\footnotesize]
+src/app/
+|-- core/                  <- Singletons & services applicatifs
+|   |-- auth/
+|   |-- guards/            <- authGuard, roleGuard, guestGuard
+|   |-- interceptors/      <- jwtInterceptor
+|   |-- services/          <- AuthService
+|   |-- models/            <- User, AuthResponse, UserRole
+|
+|-- shared/                <- Composants & directives reutilisables
+|   |-- components/        <- PageHeader
+|   |-- directives/        <- RevealOnScrollDirective
+|
+|-- features/              <- Decoupage par domaine metier
+|   |-- landing/           <- Page d'accueil publique
+|   |-- auth/              <- Login, Register
+|   |-- patient/           <- Dashboard, RDV, Dossier, Ordonnances, Profil
+|   |-- doctor/            <- Dashboard, Planning, Consultations, Patients
+|   |-- secretary/         <- Dashboard, RDV, Facturation
+|   |-- admin/             <- Dashboard, Etablissement, Personnel,
+|                              Finance, Statistiques
+|
+|-- layouts/               <- Layouts d'application
+|   |-- main-layout/       <- Shell avec sidenav + toolbar
+|
+|-- app.config.ts          <- Providers (router, http, animations)
+|-- app.routes.ts          <- Routes lazy-loadees
+\end{lstlisting}
+
+\begin{successbox}[title={Bénéfices de cette structure}]
+\begin{itemize}
+  \item \textbf{Séparation claire des responsabilités} entre logique transverse et features métier.
+  \item \textbf{Lazy-loading par feature} : chaque rôle charge uniquement son code.
+  \item \textbf{Évolutivité} : ajout d'un nouveau module sans toucher l'existant.
+  \item \textbf{Testabilité} : composants isolés et services injectables.
+\end{itemize}
+\end{successbox}
+
+\subsection{Diagramme d'architecture}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=0.6cm,
+  block/.style={rectangle, draw=primary, fill=primary!10, rounded corners=4pt,
+                minimum width=3.4cm, minimum height=0.9cm, font=\small\bfseries,
+                text=darkgray, drop shadow={shadow xshift=0pt, shadow yshift=-1pt, opacity=0.15}},
+  service/.style={rectangle, draw=accent, fill=accent!10, rounded corners=4pt,
+                  minimum width=3.4cm, minimum height=0.9cm, font=\small\bfseries,
+                  text=darkgray},
+  guard/.style={rectangle, draw=warning, fill=warning!10, rounded corners=4pt,
+                minimum width=3.4cm, minimum height=0.7cm, font=\small,
+                text=darkgray},
+  backend/.style={rectangle, draw=success, fill=success!10, rounded corners=4pt,
+                  minimum width=4cm, minimum height=1cm, font=\small\bfseries,
+                  text=darkgray},
+  arrow/.style={->, thick, draw=mediumgray}
+]
+
+\node[block] (landing) {Landing Page};
+\node[block, right=of landing] (auth) {Login / Register};
+\node[block, right=of auth] (dashboard) {Dashboards (4 rôles)};
+
+\node[guard, below=of landing] (guestG) {guestGuard};
+\node[guard, below=of auth] (authG) {authGuard};
+\node[guard, below=of dashboard] (roleG) {roleGuard};
+
+\node[service, below=1cm of authG] (authS) {AuthService (signals)};
+\node[service, right=of authS] (jwtI) {jwtInterceptor};
+
+\node[backend, below=1cm of authS] (api) {API REST Spring Boot};
+
+\draw[arrow] (landing) -- (guestG);
+\draw[arrow] (auth) -- (authG);
+\draw[arrow] (dashboard) -- (roleG);
+\draw[arrow] (guestG) -- (authS);
+\draw[arrow] (authG) -- (authS);
+\draw[arrow] (roleG) -- (authS);
+\draw[arrow] (authS) -- (jwtI);
+\draw[arrow] (jwtI) -- (api);
+\draw[arrow] (authS) -- (api);
+
+\end{tikzpicture}
+\caption{Flux d'authentification et de protection des routes}
+\end{figure}
+
+\newpage
+
+% ============================================
+%  4. LANDING PAGE
+% ============================================
+\section{Landing Page}
+
+\subsection{Objectif et conception}
+
+La landing page est le \textbf{premier point de contact} avec les utilisateurs.
+Elle doit transmettre en quelques secondes la valeur de MediSync et inciter
+à l'action (inscription ou connexion).
+
+\subsection{Sections}
+
+\begin{enumerate}
+  \item \textbf{Hero} avec titre accrocheur, illustration animée et 2 CTA (Créer un compte / Se connecter).
+  \item \textbf{Stats} : 4 indicateurs clés (50K+ patients, 320+ praticiens, 99.9\% uptime, 24/7 support).
+  \item \textbf{Fonctionnalités} : 6 cartes représentant les modules principaux.
+  \item \textbf{How it works} : 3 étapes pour réserver un rendez-vous.
+  \item \textbf{Témoignages} : 3 avis (médecin, patient, directrice).
+  \item \textbf{Call-to-action final} avec dégradé immersif.
+  \item \textbf{Footer} avec liens utiles et réseaux sociaux.
+\end{enumerate}
+
+\subsection{Animations \& interactivité}
+
+\begin{featurebox}
+\textbf{Animations CSS pures} (aucune librairie externe) :
+\begin{itemize}
+  \item \textbf{Blobs gradients} flottants en arrière-plan du hero (\emph{keyframes blob}).
+  \item \textbf{Pulse} sur le badge "Certifié RGPD" (\emph{double pulse-ring}).
+  \item \textbf{Gradient text} animé sur le mot clé du titre.
+  \item \textbf{Floating cards} survolant l'image principale.
+  \item \textbf{Hover lifts} sur les cartes feature/testimonial.
+\end{itemize}
+\end{featurebox}
+
+\begin{featurebox}
+\textbf{Scroll-reveal via une directive personnalisée} :
+\begin{lstlisting}[language=TypeScript]
+@Directive({ selector: '[appReveal]', standalone: true })
+export class RevealOnScrollDirective implements OnInit {
+  @Input() revealDelay = 0;
+
+  ngOnInit() {
+    const node = this.el.nativeElement;
+    node.classList.add('reveal');
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('revealed');
+          this.observer?.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    this.observer.observe(node);
+  }
+}
+\end{lstlisting}
+\end{featurebox}
+
+\newpage
+
+% ============================================
+%  5. AUTHENTIFICATION
+% ============================================
+\section{Système d'authentification}
+
+\subsection{Composants}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\rowcolor{primary!10}
+\textbf{Élément} & \textbf{Rôle} \\
+\midrule
+\texttt{LoginComponent} & Formulaire de connexion avec validation reactive \\
+\texttt{RegisterComponent} & Création de compte avec règles de mot de passe fort \\
+\texttt{AuthService} & Service singleton avec état réactif (signals) \\
+\texttt{jwtInterceptor} & Injection automatique du Bearer token \\
+\texttt{authGuard} & Protection des routes authentifiées \\
+\texttt{roleGuard} & Vérification du rôle utilisateur \\
+\texttt{guestGuard} & Empêche les utilisateurs connectés d'accéder à /auth \\
+\bottomrule
+\end{tabularx}
+\caption{Composants du système d'authentification}
+\end{table}
+
+\subsection{AuthService basé sur les signals}
+
+\begin{lstlisting}[language=TypeScript, caption={Extrait d'AuthService}]
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+
+  private readonly userSignal = signal<User | null>(this.loadUser());
+
+  readonly user = this.userSignal.asReadonly();
+  readonly isAuthenticated = computed(() => this.userSignal() !== null);
+  readonly role = computed(() => this.userSignal()?.role ?? null);
+
+  login(payload: LoginRequest): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${environment.apiUrl}/auth/login`, payload)
+      .pipe(tap((res) => this.persist(this.normalize(res))));
+  }
+
+  logout(): void {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    this.userSignal.set(null);
+    this.router.navigate(['/auth/login']);
+  }
+}
+\end{lstlisting}
+
+\subsection{Validateur de mot de passe fort}
+
+Conforme au cahier des charges (article 3.1.1) :
+\textbf{8 caractères minimum}, \textbf{1 majuscule}, \textbf{1 chiffre},
+\textbf{1 caractère spécial}.
+
+\begin{lstlisting}[language=TypeScript]
+function strongPassword(control: AbstractControl): ValidationErrors | null {
+  const v = control.value as string;
+  if (!v) return null;
+  const ok = v.length >= 8 &&
+             /[A-Z]/.test(v) &&
+             /[0-9]/.test(v) &&
+             /[^A-Za-z0-9]/.test(v);
+  return ok ? null : { weak: true };
+}
+\end{lstlisting}
+
+\newpage
+
+% ============================================
+%  6. ROUTING
+% ============================================
+\section{Routing et protection des accès}
+
+\subsection{Stratégie}
+
+\begin{itemize}
+  \item \textbf{Lazy-loading systématique} via \texttt{loadComponent}.
+  \item \textbf{Layout partagé} (\texttt{MainLayoutComponent}) injecté en
+        composant parent pour les routes authentifiées.
+  \item \textbf{Guards composables} : authGuard + roleGuard.
+\end{itemize}
+
+\subsection{Routes principales}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{>{\ttfamily}lX}
+\toprule
+\rowcolor{primary!10}
+\textbf{URL} & \textbf{Protection / Description} \\
+\midrule
+/ & Public — landing page \\
+/auth/login & guestGuard \\
+/auth/register & guestGuard \\
+/patient/* & authGuard + roleGuard(['patient']) \\
+/doctor/* & authGuard + roleGuard(['doctor']) \\
+/secretary/* & authGuard + roleGuard(['secretary']) \\
+/admin/* & authGuard + roleGuard(['admin']) \\
+\bottomrule
+\end{tabularx}
+\caption{Cartographie des routes}
+\end{table}
+
+\subsection{Extrait de configuration des routes}
+
+\begin{lstlisting}[language=TypeScript]
+{
+  path: 'patient',
+  canActivate: [authGuard, roleGuard(['patient'])],
+  loadComponent: () =>
+    import('./layouts/main-layout/main-layout.component')
+      .then((m) => m.MainLayoutComponent),
+  children: [
+    { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+    {
+      path: 'appointments',
+      loadComponent: () => import(
+        './features/patient/appointments/patient-appointments.component'
+      ).then((m) => m.PatientAppointmentsComponent)
+    },
+    // ... autres routes patient
+  ]
+}
+\end{lstlisting}
+
+\newpage
+
+% ============================================
+%  7. PAGES PAR ROLE
+% ============================================
+\section{Interfaces métier par rôle}
+
+\subsection{Espace Patient}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\rowcolor{primary!10}
+\textbf{Page} & \textbf{Fonctionnalités} \\
+\midrule
+Tableau de bord & 3 tuiles d'accès rapide (RDV, dossier, ordonnances) \\
+Rendez-vous & Recherche par spécialité/localisation/date, onglets À venir / Historique \\
+Dossier médical & Infos personnelles, vaccinations, historique des consultations \\
+Ordonnances & Liste des prescriptions actives, téléchargement PDF, rappels \\
+Profil & Édition des informations, sécurité, 2FA \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Espace Médecin}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\rowcolor{primary!10}
+\textbf{Page} & \textbf{Fonctionnalités} \\
+\midrule
+Tableau de bord & Vue d'ensemble de la journée \\
+Planning & Toggle Jour/Semaine/Mois, créneaux colorés par type (consultation, suivi, urgence) \\
+Consultations & Liste des patients du jour avec statuts (en attente, en cours, terminée) \\
+Patients & Recherche, cartes avec antécédents et dernière visite \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Espace Secrétariat}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\rowcolor{primary!10}
+\textbf{Page} & \textbf{Fonctionnalités} \\
+\midrule
+Tableau de bord & Accès rapide aux opérations courantes \\
+Rendez-vous & Table CRUD complète avec menu d'actions \\
+Facturation & KPIs (encaissé, en attente, impayés), génération PDF \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Espace Administration}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\rowcolor{primary!10}
+\textbf{Page} & \textbf{Fonctionnalités} \\
+\midrule
+Tableau de bord & 4 KPIs (consultations, revenus, occupation, no-show) \\
+Établissement & Identité, horaires, spécialités, salles \& équipements \\
+Personnel & Gestion des médecins (tarifs, spécialités) et du staff \\
+Finance & Graphique barres revenus, tarifs par acte \\
+Statistiques & Consultations par praticien, camembert par spécialité \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\newpage
+
+% ============================================
+%  8. DESIGN SYSTEM
+% ============================================
+\section{Design System \& UX}
+
+\subsection{Palette de couleurs}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{lXl}
+\toprule
+\rowcolor{primary!10}
+\textbf{Couleur} & \textbf{Usage} & \textbf{Code} \\
+\midrule
+\cellcolor{primary}\color{white}Primary & Actions principales, accents & \texttt{\#0D6EFD} \\
+\cellcolor{secondary}\color{white}Secondary & Gradients, accents secondaires & \texttt{\#06B6D4} \\
+\cellcolor{accent}\color{white}Accent & Gradient hero, éléments décoratifs & \texttt{\#8B5CF6} \\
+\cellcolor{success}\color{white}Success & Confirmations, statuts positifs & \texttt{\#10B981} \\
+\cellcolor{warning}\color{white}Warning & Avertissements, en attente & \texttt{\#F59E0B} \\
+\cellcolor{danger}\color{white}Danger & Erreurs, annulations & \texttt{\#EF4444} \\
+\bottomrule
+\end{tabularx}
+\caption{Palette principale du design system}
+\end{table}
+
+\subsection{Composants partagés}
+
+\begin{itemize}
+  \item \textbf{PageHeaderComponent} : entête uniforme (eyebrow + titre + sous-titre + actions).
+  \item \textbf{MainLayoutComponent} : shell responsive avec sidebar + toolbar + content.
+  \item \textbf{RevealOnScrollDirective} : animation au scroll pour la landing.
+\end{itemize}
+
+\subsection{Responsive design}
+
+L'application adopte une approche \textbf{mobile-first} :
+
+\begin{itemize}
+  \item Grilles CSS \texttt{auto-fit} / \texttt{auto-fill} avec \texttt{minmax}.
+  \item Media queries aux breakpoints 600px, 768px, 900px.
+  \item Sidebar transformée en menu burger sur mobile.
+  \item Tableaux convertis en cartes verticales sur petits écrans.
+\end{itemize}
+
+\subsection{Accessibilité}
+
+\begin{itemize}
+  \item Labels et placeholders explicites sur tous les formulaires.
+  \item Attributs ARIA sur les boutons icônes (\texttt{aria-label}).
+  \item Contrastes conformes WCAG AA.
+  \item Navigation au clavier supportée nativement par Angular Material.
+\end{itemize}
+
+\newpage
+
+% ============================================
+%  9. INTEGRATION BACKEND
+% ============================================
+\section{Intégration avec le backend}
+
+\subsection{Communication API}
+
+Le frontend dialogue avec une API REST \textbf{Spring Boot 3.5} sur le port
+\texttt{8080}, authentifiée par \textbf{JWT (HS512)}.
+
+\begin{lstlisting}[language=TypeScript, caption={Intercepteur JWT}]
+export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
+  const token = inject(AuthService).getToken();
+  if (!token) return next(req);
+  return next(
+    req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+  );
+};
+\end{lstlisting}
+
+\subsection{Endpoints consommés}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{>{\ttfamily}lX}
+\toprule
+\rowcolor{primary!10}
+\textbf{Endpoint} & \textbf{Description} \\
+\midrule
+POST /api/auth/register & Création de compte patient \\
+POST /api/auth/login & Connexion et émission de JWT \\
+GET /api/users/me & Profil de l'utilisateur connecté (à venir) \\
+GET /api/appointments & Liste des rendez-vous (à venir) \\
+GET /api/medical-records & Dossiers médicaux (à venir) \\
+\bottomrule
+\end{tabularx}
+\caption{Endpoints principaux}
+\end{table}
+
+\subsection{Configuration CORS}
+
+\begin{successbox}[title={Sécurité}]
+Le backend autorise uniquement l'origine \texttt{http://localhost:4200} en
+développement, avec credentials activés. Cette politique est durcie pour
+la production via la variable d'environnement \texttt{environment.apiUrl}.
+\end{successbox}
+
+\newpage
+
+% ============================================
+%  10. CONCLUSION
+% ============================================
+\section{Conclusion}
+
+\subsection{Bilan de la partie frontend}
+
+La partie frontend de MediSync illustre l'application des meilleures
+pratiques modernes du développement Angular :
+
+\begin{itemize}
+  \item Architecture \textbf{Core / Shared / Features} évolutive.
+  \item Composants \textbf{standalone} avec \textbf{signaux} pour la réactivité.
+  \item \textbf{Lazy-loading} systématique pour des performances optimales.
+  \item Design system cohérent avec \textbf{Angular Material 3}.
+  \item Authentification robuste avec \textbf{JWT} et \textbf{role-based guards}.
+  \item Interface \textbf{responsive} adaptée à tous les écrans.
+\end{itemize}
+
+\subsection{Statistiques du projet}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{Xr}
+\toprule
+\rowcolor{primary!10}
+\textbf{Indicateur} & \textbf{Valeur} \\
+\midrule
+Pages métier livrées & 17 \\
+Composants standalone créés & 19 \\
+Services applicatifs & 1 (AuthService) \\
+Guards de protection & 3 (authGuard, roleGuard, guestGuard) \\
+Routes lazy-loadées & 17 \\
+Lignes de TypeScript & $\approx$ 2 500 \\
+Lignes de SCSS & $\approx$ 1 800 \\
+\bottomrule
+\end{tabularx}
+\caption{Volume de code produit}
+\end{table}
+
+\subsection{Perspectives}
+
+\begin{itemize}
+  \item Intégration de la \textbf{messagerie temps réel} (WebSocket) pour les notifications.
+  \item Mise en place d'un \textbf{store global} (NgRx ou Signals Store) si la complexité augmente.
+  \item Ajout de \textbf{tests unitaires} et e2e (Jest, Playwright).
+  \item Optimisations \textbf{SSR} (Angular Universal) pour le SEO de la landing.
+  \item Internationalisation \textbf{i18n} (français, arabe, anglais).
+\end{itemize}
+
+\vspace{1cm}
+
+\begin{tcolorbox}[
+  enhanced, colback=primary, colframe=primary,
+  arc=12pt, drop shadow,
+  fontupper=\color{white}\large\bfseries,
+  halign=center
+]
+Merci de votre attention\\[0.2cm]
+\normalfont\normalsize Questions \& échanges
+\end{tcolorbox}
+
+\end{document}
