@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'dashboard_screen.dart';
 import 'ordonnances_screen.dart';
 import 'prendre_rdv_screen.dart';
+import 'profile_screen.dart';
 
 class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+  final VoidCallback onLogout;
+
+  const MainShell({super.key, required this.onLogout});
 
   @override
   State<MainShell> createState() => _MainShellState();
@@ -12,24 +16,31 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 2; // Default to 'Records' matching screen2.png active state
 
-  final List<Widget> _screens = [
-    // Home Placeholder
-    const Scaffold(
-      body: Center(
-        child: Text('Dashboard Accueil'),
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      // Home Dashboard
+      DashboardScreen(
+        onNavigateToSchedule: () => _onTabTapped(1),
+        onNavigateToRecords: () => _onTabTapped(2),
       ),
-    ),
-    // Schedule Screen
-    const PrendreRdvScreen(),
-    // Records (Vos Ordonnances)
-    const OrdonnancesScreen(),
-    // Profile Placeholder
-    const Scaffold(
-      body: Center(
-        child: Text('Profil Utilisateur'),
-      ),
-    ),
-  ];
+      // Schedule Screen
+      const PrendreRdvScreen(),
+      // Records (Vos Ordonnances)
+      const OrdonnancesScreen(),
+      // Profile Screen
+      ProfileScreen(onLogout: widget.onLogout),
+    ];
+  }
+
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +51,7 @@ class _MainShellState extends State<MainShell> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: _onTabTapped,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         selectedItemColor: const Color(0xFF0066FF),

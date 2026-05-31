@@ -31,7 +31,13 @@ class _MyAppState extends State<MyApp> {
         textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
       ),
       home: _isLoggedIn
-          ? const MainShell()
+          ? MainShell(
+              onLogout: () {
+                setState(() {
+                  _isLoggedIn = false;
+                });
+              },
+            )
           : LoginScreen(
               onLoginSuccess: () {
                 setState(() {
