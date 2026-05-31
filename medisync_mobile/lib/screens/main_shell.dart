@@ -26,6 +26,7 @@ class _MainShellState extends State<MainShell> {
       DashboardScreen(
         onNavigateToSchedule: () => _onTabTapped(1),
         onNavigateToRecords: () => _onTabTapped(2),
+        onNavigateToProfile: () => _onTabTapped(3),
       ),
       // Schedule Screen
       const PrendreRdvScreen(),

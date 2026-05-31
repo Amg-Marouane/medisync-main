@@ -13,11 +13,11 @@ class _PrendreRdvScreenState extends State<PrendreRdvScreen> {
   String _selectedTime = '10:00';
 
   final List<Map<String, String>> _days = [
-    {'day': 'LUN', 'num': '16'},
-    {'day': 'MAR', 'num': '17'},
-    {'day': 'MER', 'num': '18'},
-    {'day': 'JEU', 'num': '19'},
-    {'day': 'VEN', 'num': '20'},
+    {'day': 'LUN', 'num': '15'},
+    {'day': 'MAR', 'num': '16'},
+    {'day': 'MER', 'num': '17'},
+    {'day': 'JEU', 'num': '18'},
+    {'day': 'VEN', 'num': '19'},
   ];
 
   final List<String> _hours = [
@@ -66,7 +66,14 @@ class _PrendreRdvScreenState extends State<PrendreRdvScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF0066FF), size: 26),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Aucune nouvelle notification'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
           ),
           const SizedBox(width: 8),
         ],
@@ -108,7 +115,7 @@ class _PrendreRdvScreenState extends State<PrendreRdvScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'OCTOBRE 2023',
+                        'JUIN 2026',
                         style: GoogleFonts.inter(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -117,7 +124,22 @@ class _PrendreRdvScreenState extends State<PrendreRdvScreen> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () async {
+                          final DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime(2026, 6, 15),
+                            firstDate: DateTime(2026, 6, 1),
+                            lastDate: DateTime(2026, 12, 31),
+                          );
+                          if (picked != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Date sélectionnée : ${picked.day}/${picked.month}/${picked.year}'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        },
                         child: Text(
                           'Voir tout',
                           style: GoogleFonts.inter(
@@ -356,14 +378,27 @@ class _PrendreRdvScreenState extends State<PrendreRdvScreen> {
                         const Icon(Icons.info_outline_rounded, color: Color(0xFF3B82F6), size: 22),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Text(
-                            'Détails de la consultation\nLundi 16 Octobre à $_selectedTime • Consultation vidéo',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF1E3A8A),
-                              height: 1.4,
-                            ),
+                          child: Builder(
+                            builder: (context) {
+                              String dayName = '';
+                              switch (_days[_selectedDayIndex]['day']) {
+                                case 'LUN': dayName = 'Lundi'; break;
+                                case 'MAR': dayName = 'Mardi'; break;
+                                case 'MER': dayName = 'Mercredi'; break;
+                                case 'JEU': dayName = 'Jeudi'; break;
+                                case 'VEN': dayName = 'Vendredi'; break;
+                                default: dayName = 'Lundi';
+                              }
+                              return Text(
+                                'Détails de la consultation\n$dayName ${_days[_selectedDayIndex]['num']} Juin à $_selectedTime • Consultation vidéo',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFF1E3A8A),
+                                  height: 1.4,
+                                ),
+                              );
+                            }
                           ),
                         ),
                       ],

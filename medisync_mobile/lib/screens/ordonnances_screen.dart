@@ -86,7 +86,14 @@ class _OrdonnancesScreenState extends State<OrdonnancesScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF0066FF), size: 26),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Aucune nouvelle notification'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
           ),
           const SizedBox(width: 8),
         ],
@@ -142,7 +149,7 @@ class _OrdonnancesScreenState extends State<OrdonnancesScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Toutes vos ordonnances sont certifiées et directement transmissibles à votre pharmacie via le QR code intégré au PDF.',
+                      'Toutes vos ordonnances sont certifiées et directement transmissibles à votre pharmacie via le QR code intégré.',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -298,51 +305,6 @@ class _OrdonnancesScreenState extends State<OrdonnancesScreen> {
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 20),
-          // Download button
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ordonnance.isEnCours
-                ? ElevatedButton.icon(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0066FF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    icon: const Icon(Icons.picture_as_pdf_outlined, color: Colors.white, size: 20),
-                    label: Text(
-                      'Télécharger PDF',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  )
-                : OutlinedButton.icon(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF0066FF)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      backgroundColor: Colors.transparent,
-                    ),
-                    icon: const Icon(Icons.download_rounded, color: Color(0xFF0066FF), size: 20),
-                    label: Text(
-                      'Télécharger PDF',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF0066FF),
-                      ),
-                    ),
-                  ),
           ),
         ],
       ),

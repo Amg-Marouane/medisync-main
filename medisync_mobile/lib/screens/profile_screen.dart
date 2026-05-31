@@ -117,18 +117,21 @@ class ProfileScreen extends StatelessWidget {
             _buildSectionHeader('INFORMATIONS PERSONNELLES'),
             _buildSettingsGroup([
               _buildSettingsTile(
+                context,
                 'Numéro de sécurité sociale',
                 '1 95 03 33 061 024',
                 Icons.badge_outlined,
                 const Color(0xFF0066FF),
               ),
               _buildSettingsTile(
+                context,
                 'Téléphone',
                 '+212 6 00 00 00 00',
                 Icons.phone_outlined,
                 const Color(0xFF0066FF),
               ),
               _buildSettingsTile(
+                context,
                 'Groupe Sanguin',
                 'O+',
                 Icons.bloodtype_outlined,
@@ -141,6 +144,7 @@ class ProfileScreen extends StatelessWidget {
             _buildSectionHeader('SÉCURITÉ & CONFIDENTIALITÉ'),
             _buildSettingsGroup([
               _buildSettingsTile(
+                context,
                 'Double facteur (2FA)',
                 'Activé',
                 Icons.security_rounded,
@@ -148,6 +152,7 @@ class ProfileScreen extends StatelessWidget {
                 trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF94A3B8)),
               ),
               _buildSettingsTile(
+                context,
                 'Connexion Google',
                 'Lié',
                 Icons.g_mobiledata_rounded,
@@ -155,6 +160,7 @@ class ProfileScreen extends StatelessWidget {
                 trailing: const Icon(Icons.check_circle, size: 18, color: Color(0xFF10B981)),
               ),
               _buildSettingsTile(
+                context,
                 'Modifier le mot de passe',
                 'Mis à jour il y a 2 mois',
                 Icons.lock_reset_rounded,
@@ -168,6 +174,7 @@ class ProfileScreen extends StatelessWidget {
             _buildSectionHeader('PRÉFÉRENCES'),
             _buildSettingsGroup([
               _buildSettingsTile(
+                context,
                 'Notifications push',
                 'Activées',
                 Icons.notifications_active_outlined,
@@ -258,46 +265,57 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsTile(String title, String value, IconData icon, Color iconColor, {Widget? trailing}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: iconColor, size: 20),
+  Widget _buildSettingsTile(BuildContext context, String title, String value, IconData icon, Color iconColor, {Widget? trailing, VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap ?? () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Paramètre "$title" sélectionné'),
+            behavior: SnackBarBehavior.floating,
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1E293B),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: const Color(0xFF64748B),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+        );
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 20),
             ),
-          ),
-          if (trailing != null) trailing,
-        ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    value,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: const Color(0xFF64748B),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (trailing != null) trailing,
+          ],
+        ),
       ),
     );
   }

@@ -4,11 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 class DashboardScreen extends StatelessWidget {
   final VoidCallback onNavigateToSchedule;
   final VoidCallback onNavigateToRecords;
+  final VoidCallback onNavigateToProfile;
 
   const DashboardScreen({
     super.key,
     required this.onNavigateToSchedule,
     required this.onNavigateToRecords,
+    required this.onNavigateToProfile,
   });
 
   @override
@@ -47,28 +49,31 @@ class DashboardScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF0066FF), Color(0xFF00C2FF)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF0066FF).withOpacity(0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
+                  GestureDetector(
+                    onTap: onNavigateToProfile,
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0066FF), Color(0xFF00C2FF)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.person_rounded,
-                      size: 26,
-                      color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0066FF).withOpacity(0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.person_rounded,
+                        size: 26,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
@@ -81,7 +86,7 @@ class DashboardScreen extends StatelessWidget {
                   Expanded(
                     child: _buildStatCard(
                       'Prochain RDV',
-                      'Lundi 16 Oct.',
+                      'Lundi 15 Juin',
                       '10:00',
                       Icons.calendar_today_rounded,
                       const Color(0xFF0066FF),
@@ -141,7 +146,30 @@ class DashboardScreen extends StatelessWidget {
                     Icons.phone_in_talk_rounded,
                     const Color(0xFFFEF2F2),
                     const Color(0xFFEF4444),
-                    () {},
+                    () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Appel d\'urgence'),
+                          content: const Text('Voulez-vous appeler le service d\'urgence (15) ?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Annuler'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Appel en cours...')),
+                                );
+                              },
+                              child: const Text('Appeler', style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                   _buildShortcutCard(
                     'Téléconsultation',
@@ -149,7 +177,30 @@ class DashboardScreen extends StatelessWidget {
                     Icons.video_camera_back_outlined,
                     const Color(0xFFFAF5FF),
                     const Color(0xFFA855F7),
-                    () {},
+                    () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Téléconsultation'),
+                          content: const Text('Lancer une téléconsultation vidéo avec un médecin de garde ?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Annuler'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Connexion au serveur vidéo en cours...')),
+                                );
+                              },
+                              child: const Text('Rejoindre'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -167,7 +218,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(height: 16),
               _buildActivityItem(
                 'Rendez-vous confirmé',
-                'Avec Dr. Sarah Lemoine le Lundi 16 Oct. à 10:00.',
+                'Avec Dr. Sarah Lemoine le Lundi 15 Juin à 10:00.',
                 'Il y a 10 min',
                 Icons.check_circle_outline_rounded,
                 const Color(0xFF10B981),
