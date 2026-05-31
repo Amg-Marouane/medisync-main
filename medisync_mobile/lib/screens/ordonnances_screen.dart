@@ -55,10 +55,23 @@ class _OrdonnancesScreenState extends State<OrdonnancesScreen> {
         elevation: 0.5,
         title: Row(
           children: [
-            const CircleAvatar(
-              radius: 18,
-              backgroundImage: NetworkImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'),
-            ),
+            Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF0066FF), Color(0xFF00C2FF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.person_rounded,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  ),
             const SizedBox(width: 12),
             Text(
               'MediSync',

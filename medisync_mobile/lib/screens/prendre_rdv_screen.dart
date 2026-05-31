@@ -35,10 +35,23 @@ class _PrendreRdvScreenState extends State<PrendreRdvScreen> {
         elevation: 0.5,
         title: Row(
           children: [
-            const CircleAvatar(
-              radius: 18,
-              backgroundImage: NetworkImage('https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=crop&w=100&q=80'),
-            ),
+            Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF0066FF), Color(0xFF00C2FF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.person_rounded,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  ),
             const SizedBox(width: 12),
             Text(
               'MediSync',
@@ -190,13 +203,21 @@ class _PrendreRdvScreenState extends State<PrendreRdvScreen> {
                     ),
                     child: Row(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.network(
-                            'https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=crop&w=150&q=80',
-                            height: 72,
-                            width: 72,
-                            fit: BoxFit.cover,
+                        Container(
+                          height: 72,
+                          width: 72,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF0891B2), Color(0xFF06B6D4)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.medical_services_rounded,
+                            size: 36,
+                            color: Colors.white,
                           ),
                         ),
                         const SizedBox(width: 16),
