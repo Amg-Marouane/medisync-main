@@ -43,9 +43,29 @@ class ProfileScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const CircleAvatar(
-                    radius: 36,
-                    backgroundImage: NetworkImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'),
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF0066FF), Color(0xFF00C2FF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0066FF).withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.person_rounded,
+                      size: 38,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
@@ -53,7 +73,7 @@ class ProfileScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Marouane Amguine',
+                          'Sophie Dubois',
                           style: GoogleFonts.inter(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -62,7 +82,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'marouane.amguine@enim.ac.ma',
+                          'sophie.dubois@medisync.fr',
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             color: const Color(0xFF64748B),
