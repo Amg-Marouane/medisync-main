@@ -1,0 +1,44 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'screens/login_screen.dart';
+import 'screens/main_shell.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isLoggedIn = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'MediSync',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF0066FF),
+          primary: const Color(0xFF0066FF),
+        ),
+        useMaterial3: true,
+        textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
+      ),
+      home: _isLoggedIn
+          ? const MainShell()
+          : LoginScreen(
+              onLoginSuccess: () {
+                setState(() {
+                  _isLoggedIn = true;
+                });
+              },
+            ),
+    );
+  }
+}
