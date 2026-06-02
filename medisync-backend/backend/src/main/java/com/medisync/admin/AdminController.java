@@ -1,7 +1,9 @@
 package com.medisync.admin;
 
+import com.medisync.appointment.dto.AppointmentDto;
 import com.medisync.appointment.AppointmentRepository;
 import com.medisync.audit.AuditService;
+import org.springframework.data.domain.Sort;
 import com.medisync.doctor.DoctorProfile;
 import com.medisync.doctor.DoctorRepository;
 import com.medisync.user.Role;
@@ -45,6 +47,14 @@ public class AdminController {
     @GetMapping("/dashboard")
     DashboardStats dashboard() {
         return new DashboardStats(users.count(), doctors.count(), appointments.count());
+    }
+
+    @GetMapping("/appointments")
+    List<AppointmentDto> getAllAppointments() {
+        return appointments.findAll(Sort.by(Sort.Direction.DESC, "startsAt"))
+                .stream()
+                .map(AppointmentDto::from)
+                .toList();
     }
 
     @GetMapping("/users")

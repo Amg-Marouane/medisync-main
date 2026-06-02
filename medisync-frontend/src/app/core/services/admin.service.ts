@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   AdminUserRequest,
+  AppointmentDto,
   AuditLogDto,
   DashboardStats,
   TwoFactorSetupResponse,
@@ -33,6 +34,10 @@ export class AdminService {
 
   deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/users/${id}`);
+  }
+
+  getAppointments(): Observable<AppointmentDto[]> {
+    return this.http.get<AppointmentDto[]>(`${this.base}/appointments`);
   }
 
   getAuditLogs(page = 0, size = 50): Observable<AuditLogDto[]> {

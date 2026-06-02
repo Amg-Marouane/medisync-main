@@ -1,12 +1,81 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PageHeaderComponent } from '../../../shared/components/page-header.component';
+
+// ── Tariffs Dialog ───────────────────────────────────────────────────────────
+
+interface Tariff { act: string; amount: number; }
+
+@Component({
+  selector: 'app-tariffs-dialog',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule,
+            MatInputModule, MatIconModule, MatDialogModule],
+  template: `
+    <div class="dlg-header">
+      <mat-icon>edit</mat-icon>
+      <h2>Modifier les tarifs</h2>
+    </div>
+    <mat-dialog-content>
+      <form [formGroup]="form" class="tariff-form">
+        @for (key of actKeys; track key) {
+          <div class="tariff-row">
+            <span class="act-name">{{ key }}</span>
+            <mat-form-field appearance="outline" class="amount-field">
+              <input matInput type="number" min="1" [formControlName]="key" />
+              <span matTextSuffix>DH</span>
+            </mat-form-field>
+          </div>
+        }
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Annuler</button>
+      <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="save()">
+        <mat-icon>check</mat-icon>
+        Enregistrer
+      </button>
+    </mat-dialog-actions>
+  `,
+  styles: [`
+    .dlg-header { display:flex; align-items:center; gap:10px; padding:20px 24px 0; }
+    .dlg-header mat-icon { color:#0d6efd; font-size:26px; width:26px; height:26px; }
+    .dlg-header h2 { margin:0; font-size:18px; font-weight:600; }
+    mat-dialog-content { padding:16px 24px !important; min-width:400px; }
+    .tariff-form { display:flex; flex-direction:column; gap:4px; }
+    .tariff-row { display:flex; align-items:center; gap:16px; }
+    .act-name { flex:1; font-size:14px; color:#374151; }
+    .amount-field { width:130px; flex-shrink:0; }
+    mat-dialog-actions { padding:8px 24px 20px !important; }
+  `]
+})
+export class TariffsDialogComponent {
+  private readonly ref = inject(MatDialogRef<TariffsDialogComponent>);
+  private readonly data: Tariff[] = inject(MAT_DIALOG_DATA);
+  private readonly fb = inject(FormBuilder);
+
+  actKeys = this.data.map(t => t.act);
+
+  form = this.fb.nonNullable.group(
+    Object.fromEntries(this.data.map(t => [t.act, [t.amount, [Validators.required, Validators.min(1)]]]))
+  );
+
+  save(): void {
+    if (this.form.invalid) return;
+    const raw = this.form.getRawValue() as Record<string, number>;
+    this.ref.close(this.data.map(t => ({ act: t.act, amount: Number(raw[t.act]) })));
+  }
+}
 
 // ── Rapport Dialog ────────────────────────────────────────────────────────────
 @Component({
@@ -171,7 +240,7 @@ export class RapportDialogComponent {
   standalone: true,
   imports: [
     CommonModule, MatCardModule, MatButtonModule, MatIconModule,
-    MatChipsModule, MatDialogModule, PageHeaderComponent
+    MatChipsModule, MatDialogModule, MatSnackBarModule, PageHeaderComponent
   ],
   template: `
     <div class="page">
@@ -236,14 +305,14 @@ export class RapportDialogComponent {
         <mat-card class="rates">
           <h3>Tarifs par acte</h3>
           <ul>
-            @for (t of tariffs; track t.act) {
+            @for (t of tariffs(); track t.act) {
               <li>
                 <span>{{ t.act }}</span>
                 <strong>{{ t.amount }} DH</strong>
               </li>
             }
           </ul>
-          <button mat-stroked-button class="full">
+          <button mat-stroked-button class="full" (click)="openTariffs()">
             <mat-icon>edit</mat-icon>
             Modifier les tarifs
           </button>
@@ -319,6 +388,7 @@ export class RapportDialogComponent {
 })
 export class FinanceComponent {
   private readonly dialog = inject(MatDialog);
+  private readonly snack = inject(MatSnackBar);
 
   exportPdf(): void {
     window.print();
@@ -332,21 +402,34 @@ export class FinanceComponent {
     });
   }
 
+  openTariffs(): void {
+    const ref = this.dialog.open(TariffsDialogComponent, {
+      data: this.tariffs(),
+      width: '500px'
+    });
+    ref.afterClosed().subscribe((result: Tariff[] | undefined) => {
+      if (result) {
+        this.tariffs.set(result);
+        this.snack.open('Tarifs mis à jour.', 'OK', { duration: 2500 });
+      }
+    });
+  }
+
   months = [
     { label: 'Jan', value: 62000 },
     { label: 'Fév', value: 68000 },
     { label: 'Mar', value: 71000 },
     { label: 'Avr', value: 73500 },
     { label: 'Mai', value: 82350 },
-    { label: 'Juin', value: 41200 }
+    { label: 'Juin', value: 82350 }
   ];
   maxRevenue = Math.max(...this.months.map(m => m.value));
 
-  tariffs = [
+  tariffs = signal<Tariff[]>([
     { act: 'Consultation générale',    amount: 300 },
     { act: 'Consultation spécialisée', amount: 450 },
     { act: 'Suivi médical',            amount: 200 },
     { act: 'Acte de petite chirurgie', amount: 800 },
     { act: 'Bilan complet',            amount: 1200 }
-  ];
+  ]);
 }
