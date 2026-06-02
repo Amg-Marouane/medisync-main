@@ -49,3 +49,15 @@ a {
   height: 64px !important;
 }
 
+@media print {
+  mat-sidenav,
+  mat-toolbar,
+  .mat-sidenav,
+  .mat-toolbar {
+    display: none !important;
+  }
+  mat-sidenav-content {
+    margin-left: 0 !important;
+  }
+}
+

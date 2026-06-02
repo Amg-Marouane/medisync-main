@@ -7,8 +7,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { BillingEmailService } from '../../../core/services/billing-email.service';
 
 interface CareAct {
   label: string;
@@ -29,6 +31,7 @@ interface CareAct {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     MatSelectModule,
     MatSnackBarModule
   ],
@@ -46,7 +49,7 @@ interface CareAct {
           <mat-icon>assignment</mat-icon>
           <div>
             <h1>Feuille de soins</h1>
-            <p>Saisir les actes realises pour la facturation.</p>
+            <p>Saisir les actes réalisés pour la facturation.</p>
           </div>
         </div>
 
@@ -57,7 +60,12 @@ interface CareAct {
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Medecin</mat-label>
+            <mat-label>Email du patient</mat-label>
+            <input matInput type="email" formControlName="patientEmail" placeholder="patient@email.com" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Médecin</mat-label>
             <input matInput formControlName="doctor" placeholder="Dr ..." />
           </mat-form-field>
 
@@ -68,7 +76,7 @@ interface CareAct {
 
           <mat-form-field appearance="outline">
             <mat-label>Assurance</mat-label>
-            <input matInput formControlName="insurance" placeholder="CNSS, CNOPS, privee..." />
+            <input matInput formControlName="insurance" placeholder="CNSS, CNOPS, privée..." />
           </mat-form-field>
         </form>
 
@@ -79,7 +87,7 @@ interface CareAct {
               <mat-label>Acte</mat-label>
               <mat-select formControlName="label">
                 <mat-option value="Consultation">Consultation</mat-option>
-                <mat-option value="Controle">Controle</mat-option>
+                <mat-option value="Contrôle">Contrôle</mat-option>
                 <mat-option value="Analyse">Analyse</mat-option>
                 <mat-option value="Injection">Injection</mat-option>
                 <mat-option value="Pansement">Pansement</mat-option>
@@ -92,7 +100,7 @@ interface CareAct {
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Quantite</mat-label>
+              <mat-label>Quantité</mat-label>
               <input matInput type="number" min="1" formControlName="quantity" />
             </mat-form-field>
 
@@ -114,7 +122,7 @@ interface CareAct {
             <mat-card class="act-row">
               <div>
                 <strong>{{ act.label }}</strong>
-                <span>{{ act.code }} - qte {{ act.quantity }}</span>
+                <span>{{ act.code }} — qté {{ act.quantity }}</span>
               </div>
               <strong>{{ act.quantity * act.price }} DH</strong>
               <button mat-icon-button type="button" (click)="removeAct(act)">
@@ -132,13 +140,21 @@ interface CareAct {
         </div>
 
         <div class="actions">
-          <button mat-stroked-button type="button" (click)="emailSheet()" [disabled]="sheetForm.invalid || acts().length === 0">
-            <mat-icon>mail</mat-icon>
+          <button mat-stroked-button type="button"
+                  [disabled]="sheetForm.invalid || acts().length === 0 || sendingEmail()"
+                  (click)="emailSheet()">
+            @if (sendingEmail()) {
+              <mat-spinner diameter="16"></mat-spinner>
+            } @else {
+              <mat-icon>mail</mat-icon>
+            }
             Envoyer par email
           </button>
-          <button mat-flat-button color="primary" type="button" (click)="downloadSheet()" [disabled]="sheetForm.invalid || acts().length === 0">
+          <button mat-flat-button color="primary" type="button"
+                  [disabled]="sheetForm.invalid || acts().length === 0"
+                  (click)="downloadSheet()">
             <mat-icon>picture_as_pdf</mat-icon>
-            Generer PDF
+            Générer PDF
           </button>
         </div>
       </mat-card>
@@ -152,38 +168,29 @@ interface CareAct {
     .hero mat-icon { font-size: 36px; width: 36px; height: 36px; color: #0d6efd; }
     .hero h1 { margin: 0; font-size: 24px; }
     .hero p { margin: 4px 0 0; color: #64748b; }
-    .sheet-grid, .act-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .sheet-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .act-grid { display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 16px; align-items: end; }
     .act-card { margin: 8px 0 16px; background: #f8fafc; }
     .act-card h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; color: #0d6efd; }
-    .act-grid button { height: 56px; }
     .acts { display: flex; flex-direction: column; gap: 8px; }
     .act-row {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
-      border-radius: 8px;
+      display: grid; grid-template-columns: 1fr auto auto;
+      align-items: center; gap: 12px; padding: 14px 16px; border-radius: 8px;
     }
     .act-row span { display: block; color: #64748b; font-size: 13px; margin-top: 2px; }
     .empty { padding: 18px; color: #64748b; border-radius: 8px; }
     .total {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 18px;
-      padding: 16px;
-      border-radius: 8px;
-      background: #e0f2fe;
-      color: #0f172a;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 18px; padding: 16px; border-radius: 8px; background: #e0f2fe; color: #0f172a;
     }
     .total strong { font-size: 22px; }
-    .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; align-items: center; }
     @media (max-width: 900px) {
-      .sheet-grid, .act-grid { grid-template-columns: 1fr 1fr; }
+      .sheet-grid { grid-template-columns: 1fr 1fr; }
+      .act-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 640px) {
-      .sheet-grid, .act-grid, .act-row { grid-template-columns: 1fr; }
+      .sheet-grid, .act-row { grid-template-columns: 1fr; }
       .actions { flex-direction: column-reverse; }
       .actions button { width: 100%; }
     }
@@ -192,14 +199,18 @@ interface CareAct {
 export class CareSheetComponent {
   private readonly fb = inject(FormBuilder);
   private readonly snack = inject(MatSnackBar);
+  private readonly billingEmail = inject(BillingEmailService);
 
   readonly acts = signal<CareAct[]>([]);
+  readonly sendingEmail = signal(false);
+
   readonly total = computed(() =>
     this.acts().reduce((sum, act) => sum + act.quantity * act.price, 0)
   );
 
   readonly sheetForm = this.fb.nonNullable.group({
     patient: ['', Validators.required],
+    patientEmail: ['', [Validators.required, Validators.email]],
     doctor: ['', Validators.required],
     date: [this.today(), Validators.required],
     insurance: ['']
@@ -226,55 +237,118 @@ export class CareSheetComponent {
   }
 
   downloadSheet(): void {
-    this.download(`${this.sheetTitle()}.pdf`, this.sheetText(), 'PDF feuille de soins genere.');
+    const blob = new Blob([this.buildSheetHtml()], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank', 'width=820,height=700');
+    if (!win) {
+      this.snack.open('Veuillez autoriser les popups pour générer le PDF.', 'Fermer', { duration: 4000 });
+      URL.revokeObjectURL(url);
+      return;
+    }
+    win.addEventListener('load', () => {
+      win.focus();
+      win.print();
+      URL.revokeObjectURL(url);
+    });
   }
 
   emailSheet(): void {
-    const subject = encodeURIComponent(this.sheetTitle());
-    const body = encodeURIComponent(this.sheetText());
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
-    this.snack.open('Email de feuille de soins prepare.', 'OK', { duration: 2500 });
-  }
-
-  private download(filename: string, content: string, message: string): void {
-    const blob = new Blob([content], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(url);
-    this.snack.open(message, 'OK', { duration: 2500 });
-  }
-
-  private sheetTitle(): string {
-    return `Feuille de soins - ${this.sheetForm.controls.patient.value}`;
-  }
-
-  private sheetText(): string {
     const sheet = this.sheetForm.getRawValue();
-    const lines = this.acts().map((act) =>
-      `- ${act.label} (${act.code}) x${act.quantity}: ${act.quantity * act.price} DH`
-    );
-    return [
-      'MEDISYNC - FEUILLE DE SOINS',
-      `Patient: ${sheet.patient}`,
-      `Medecin: ${sheet.doctor}`,
-      `Date: ${sheet.date}`,
-      `Assurance: ${sheet.insurance || 'Non renseignee'}`,
-      '',
-      'Actes realises:',
-      ...lines,
-      '',
-      `Total: ${this.total()} DH`
-    ].join('\n');
+    this.sendingEmail.set(true);
+    this.billingEmail.sendCareSheetEmail({
+      toEmail: sheet.patientEmail,
+      patientName: sheet.patient,
+      doctorName: sheet.doctor,
+      date: sheet.date,
+      insurance: sheet.insurance ?? '',
+      acts: this.acts()
+    }).subscribe({
+      next: () => {
+        this.sendingEmail.set(false);
+        this.snack.open(`Feuille de soins envoyée à ${sheet.patientEmail}.`, 'OK', { duration: 3000 });
+      },
+      error: () => {
+        this.sendingEmail.set(false);
+        // Fallback to mailto if backend not available
+        const actsLines = this.acts()
+          .map(a => `- ${a.label} (${a.code}) x${a.quantity} : ${a.quantity * a.price} DH`)
+          .join('\n');
+        const subject = encodeURIComponent(`Feuille de soins - MediSync`);
+        const body = encodeURIComponent(
+          `Bonjour ${sheet.patient},\n\nVoici votre feuille de soins.\n\nMédecin : ${sheet.doctor}\nDate : ${sheet.date}\nAssurance : ${sheet.insurance || 'Non renseignée'}\n\nActes réalisés :\n${actsLines}\n\nTotal : ${this.total()} DH\n\nCordialement,\nL'équipe MediSync`
+        );
+        window.open(`mailto:${sheet.patientEmail}?subject=${subject}&body=${body}`, '_blank');
+        this.snack.open('Votre client email a été ouvert.', 'OK', { duration: 3000 });
+      }
+    });
+  }
+
+  private buildSheetHtml(): string {
+    const sheet = this.sheetForm.getRawValue();
+    const rows = this.acts().map(a => `
+      <tr>
+        <td>${a.label}</td>
+        <td style="text-align:center">${a.code}</td>
+        <td style="text-align:center">${a.quantity}</td>
+        <td style="text-align:right">${a.price} DH</td>
+        <td style="text-align:right;font-weight:600">${a.quantity * a.price} DH</td>
+      </tr>`).join('');
+
+    return `<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8">
+<title>Feuille de soins — ${sheet.patient}</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; padding: 40px; max-width: 680px; margin: 0 auto; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+  .brand { font-size: 22px; font-weight: 700; color: #0d6efd; }
+  .brand small { display: block; font-size: 12px; font-weight: 400; color: #64748b; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; margin-bottom: 24px; }
+  .meta-item label { display: block; font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: .04em; }
+  .meta-item span { font-size: 14px; font-weight: 600; }
+  hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: #f8fafc; padding: 10px 12px; text-align: left; font-size: 12px; color: #64748b; text-transform: uppercase; }
+  td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
+  .total-row td { border-top: 2px solid #e2e8f0; border-bottom: none; font-size: 16px; font-weight: 700; padding-top: 14px; }
+  .footer { margin-top: 40px; font-size: 12px; color: #94a3b8; text-align: center; }
+  @media print { body { padding: 20px; } }
+</style></head><body>
+  <div class="header">
+    <div class="brand">🏥 MediSync<small>Feuille de soins</small></div>
+    <div style="text-align:right;color:#64748b;font-size:13px">
+      Générée le ${new Date().toLocaleDateString('fr-FR')}
+    </div>
+  </div>
+  <div class="meta">
+    <div class="meta-item"><label>Patient</label><span>${sheet.patient}</span></div>
+    <div class="meta-item"><label>Médecin</label><span>${sheet.doctor}</span></div>
+    <div class="meta-item"><label>Date</label><span>${sheet.date}</span></div>
+    <div class="meta-item"><label>Assurance</label><span>${sheet.insurance || 'Non renseignée'}</span></div>
+  </div>
+  <hr>
+  <table>
+    <thead>
+      <tr>
+        <th>Acte</th><th style="text-align:center">Code</th>
+        <th style="text-align:center">Qté</th><th style="text-align:right">P.U.</th>
+        <th style="text-align:right">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+      <tr class="total-row">
+        <td colspan="4" style="text-align:right">TOTAL</td>
+        <td style="text-align:right;color:#0d6efd">${this.total()} DH</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="footer">MediSync — Document confidentiel</div>
+</body></html>`;
   }
 
   private today(): string {
     const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, '0');
-    const d = String(now.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   }
 }

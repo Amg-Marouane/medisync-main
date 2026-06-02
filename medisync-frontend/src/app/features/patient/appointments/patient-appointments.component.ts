@@ -11,10 +11,96 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { PageHeaderComponent } from '../../../shared/components/page-header.component';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { AppointmentDto, DoctorDto } from '../../../core/models/user.model';
+
+// ── Confirmation Dialog ───────────────────────────────────────────────────────
+interface ConfirmData {
+  doctorName: string;
+  specialty: string;
+  date: string;
+  time: string;
+  duration: number;
+  reason: string;
+}
+
+@Component({
+  selector: 'app-booking-confirm-dialog',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatDividerModule],
+  template: `
+    <div class="confirm-wrap">
+      <div class="success-icon">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <h2>Rendez-vous confirmé !</h2>
+      <p class="subtitle">Un email de confirmation a été envoyé à votre adresse.</p>
+
+      <mat-divider></mat-divider>
+
+      <div class="summary">
+        <div class="row"><mat-icon>person</mat-icon><span>{{ data.doctorName }}</span></div>
+        <div class="row"><mat-icon>medical_information</mat-icon><span>{{ data.specialty }}</span></div>
+        <div class="row"><mat-icon>calendar_today</mat-icon><span>{{ data.date }}</span></div>
+        <div class="row"><mat-icon>schedule</mat-icon><span>{{ data.time }} — {{ data.duration }} min</span></div>
+        <div class="row"><mat-icon>notes</mat-icon><span>{{ data.reason }}</span></div>
+      </div>
+
+      <div class="email-notice">
+        <mat-icon>mail</mat-icon>
+        <span>Vérifiez votre boîte mail pour les détails.</span>
+      </div>
+
+      <button mat-flat-button color="primary" (click)="close()" class="close-btn">
+        Parfait !
+      </button>
+    </div>
+  `,
+  styles: [`
+    .confirm-wrap {
+      padding: 32px 28px 24px;
+      text-align: center;
+      max-width: 400px;
+    }
+    .success-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      mat-icon { font-size: 40px; width: 40px; height: 40px; color: #059669; }
+    }
+    h2 { margin: 0 0 8px; font-size: 22px; font-weight: 700; color: #0f172a; }
+    .subtitle { color: #64748b; font-size: 14px; margin: 0 0 20px; }
+    mat-divider { margin: 0 -28px 20px; }
+    .summary {
+      text-align: left;
+      display: flex; flex-direction: column; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .row {
+      display: flex; align-items: center; gap: 12px;
+      mat-icon { color: #0d6efd; font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
+      span { font-size: 14px; color: #334155; }
+    }
+    .email-notice {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: #eff6ff; border-radius: 10px; padding: 10px 16px;
+      margin-bottom: 24px;
+      mat-icon { color: #2563eb; font-size: 18px; width: 18px; height: 18px; }
+      span { font-size: 13px; color: #1d4ed8; font-weight: 500; }
+    }
+    .close-btn { width: 100%; border-radius: 10px; height: 44px; font-size: 15px; }
+  `]
+})
+export class BookingConfirmDialogComponent {
+  readonly data: ConfirmData = inject(MAT_DIALOG_DATA);
+  private readonly ref = inject(MatDialogRef<BookingConfirmDialogComponent>);
+  close(): void { this.ref.close(); }
+}
 
 @Component({
   selector: 'app-patient-appointments',
@@ -32,6 +118,7 @@ import { AppointmentDto, DoctorDto } from '../../../core/models/user.model';
     MatTabsModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatDialogModule,
     PageHeaderComponent
   ],
   template: `
@@ -122,9 +209,20 @@ import { AppointmentDto, DoctorDto } from '../../../core/models/user.model';
               </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="outline">
               <mat-label>Pour un tiers (optionnel)</mat-label>
-              <input matInput formControlName="bookedForName" placeholder="Nom de l'enfant ou personne dependante" />
+              <input matInput formControlName="bookedForName" placeholder="Nom de l'enfant ou proche" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Lien de parenté / Relation</mat-label>
+              <mat-select formControlName="relation">
+                <mat-option value="">Aucun (Pour moi-même)</mat-option>
+                <mat-option value="Enfant">Enfant</mat-option>
+                <mat-option value="Parent">Parent/Tuteur</mat-option>
+                <mat-option value="Conjoint">Conjoint</mat-option>
+                <mat-option value="Autre">Autre proche</mat-option>
+              </mat-select>
             </mat-form-field>
 
             <div class="book-actions">
@@ -155,7 +253,7 @@ import { AppointmentDto, DoctorDto } from '../../../core/models/user.model';
                       <span class="date">{{ a.startsAt | date:'dd/MM/yyyy HH:mm' }} - {{ a.durationMinutes }} min</span>
                       <span class="reason">{{ a.reason }}</span>
                       @if (a.bookedForName && a.bookedForName !== a.patientName) {
-                        <span class="reason">Pour : {{ a.bookedForName }}</span>
+                        <span class="reason">Pour : {{ a.bookedForName }}@if (a.relation) { ({{ a.relation }}) }</span>
                       }
                     </div>
                   </div>
@@ -248,6 +346,7 @@ export class PatientAppointmentsComponent implements OnInit {
   private readonly doctorSvc = inject(DoctorService);
   private readonly fb = inject(FormBuilder);
   private readonly snack = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   readonly loading = signal(true);
   readonly booking = signal(false);
@@ -266,7 +365,8 @@ export class PatientAppointmentsComponent implements OnInit {
     startsAt: ['', Validators.required],
     durationMinutes: [30, Validators.required],
     reason: ['', Validators.required],
-    bookedForName: ['']
+    bookedForName: [''],
+    relation: ['']
   });
 
   ngOnInit(): void {
@@ -295,7 +395,8 @@ export class PatientAppointmentsComponent implements OnInit {
       startsAt: `${date}T${time}`,
       durationMinutes: appointment.durationMinutes,
       reason: appointment.reason,
-      bookedForName: appointment.bookedForName ?? ''
+      bookedForName: appointment.bookedForName ?? '',
+      relation: appointment.relation ?? ''
     });
     this.slots.set([`${date}T${time}`]);
     this.loadAvailability(`${date}T${time}`);
@@ -333,20 +434,35 @@ export class PatientAppointmentsComponent implements OnInit {
       startsAt: v.startsAt,
       durationMinutes: v.durationMinutes,
       reason: v.reason,
-      bookedForName: v.bookedForName || undefined
+      bookedForName: v.bookedForName || undefined,
+      relation: v.relation || undefined
     };
     const operation = this.editingId()
       ? this.apptSvc.update(this.editingId()!, request)
       : this.apptSvc.create(request);
     operation.subscribe({
-      next: () => {
+      next: (saved) => {
         this.booking.set(false);
-        const message = this.editingId()
-          ? 'Rendez-vous modifie.'
-          : 'Rendez-vous demande. Confirmation envoyee par email si le service SMTP est configure.';
+        const wasEditing = this.editingId() !== null;
         this.closeForm();
-        this.snack.open(message, 'OK', { duration: 4000 });
         this.loadAppointments();
+        if (!wasEditing) {
+          const doctor = this.doctors().find(d => d.id === v.doctorId);
+          const dt = new Date(v.startsAt);
+          this.dialog.open(BookingConfirmDialogComponent, {
+            data: {
+              doctorName: doctor?.fullName ?? saved.doctorName ?? '',
+              specialty: doctor?.specialty ?? saved.specialty ?? '',
+              date: dt.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }),
+              time: dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+              duration: v.durationMinutes,
+              reason: v.reason
+            } satisfies ConfirmData,
+            panelClass: 'confirm-dialog-panel'
+          });
+        } else {
+          this.snack.open('Rendez-vous modifié avec succès.', 'OK', { duration: 3000 });
+        }
       },
       error: (err) => {
         this.booking.set(false);
