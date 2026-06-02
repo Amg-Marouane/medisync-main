@@ -11,6 +11,15 @@ class PrendreRdvScreen extends StatefulWidget {
 class _PrendreRdvScreenState extends State<PrendreRdvScreen> {
   int _selectedDayIndex = 0;
   String _selectedTime = '10:00';
+  bool _isForThirdParty = false;
+  final TextEditingController _thirdPartyNameController = TextEditingController();
+  String? _thirdPartyRelation = 'Enfant';
+
+  @override
+  void dispose() {
+    _thirdPartyNameController.dispose();
+    super.dispose();
+  }
 
   final List<Map<String, String>> _days = [
     {'day': 'LUN', 'num': '15'},
@@ -404,6 +413,63 @@ class _PrendreRdvScreenState extends State<PrendreRdvScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 24),
+                  // Booking for a third-party section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Prendre RDV pour un tiers',
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF1E293B),
+                        ),
+                      ),
+                      Switch.adaptive(
+                        value: _isForThirdParty,
+                        onChanged: (val) {
+                          setState(() {
+                            _isForThirdParty = val;
+                          });
+                        },
+                        activeColor: const Color(0xFF0066FF),
+                      ),
+                    ],
+                  ),
+                  if (_isForThirdParty) ...[
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _thirdPartyNameController,
+                      decoration: InputDecoration(
+                        labelText: 'Nom et Prénom du proche',
+                        labelStyle: GoogleFonts.inter(fontSize: 14),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: _thirdPartyRelation,
+                      decoration: InputDecoration(
+                        labelText: 'Lien de parenté / Relation',
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      items: ['Enfant', 'Parent', 'Conjoint', 'Autre']
+                          .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                          .toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          _thirdPartyRelation = val;
+                        });
+                      },
+                    ),
+                  ],
                   const SizedBox(height: 20),
                 ],
               ),
@@ -418,9 +484,13 @@ class _PrendreRdvScreenState extends State<PrendreRdvScreen> {
               height: 52,
               child: ElevatedButton(
                 onPressed: () {
+                  String msg = 'Rendez-vous confirmé avec succès !';
+                  if (_isForThirdParty && _thirdPartyNameController.text.isNotEmpty) {
+                    msg = 'Rendez-vous confirmé pour ${_thirdPartyNameController.text} (${_thirdPartyRelation}) !';
+                  }
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Rendez-vous confirmé avec succès !'),
+                    SnackBar(
+                      content: Text(msg),
                       backgroundColor: Colors.green,
                     ),
                   );

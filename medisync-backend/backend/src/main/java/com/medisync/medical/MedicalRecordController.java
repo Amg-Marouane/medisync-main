@@ -12,8 +12,12 @@ import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,11 +31,13 @@ public class MedicalRecordController {
     private final MedicalRecordRepository records;
     private final UserRepository users;
     private final AppointmentRepository appointments;
+    private final PdfGeneratorService pdfGenerator;
 
-    public MedicalRecordController(MedicalRecordRepository records, UserRepository users, AppointmentRepository appointments) {
+    public MedicalRecordController(MedicalRecordRepository records, UserRepository users, AppointmentRepository appointments, PdfGeneratorService pdfGenerator) {
         this.records = records;
         this.users = users;
         this.appointments = appointments;
+        this.pdfGenerator = pdfGenerator;
     }
 
     @GetMapping("/doctor/patients")
@@ -81,6 +87,30 @@ public class MedicalRecordController {
         record.setReport(request.report());
         record.setPrescription(request.prescription());
         return MedicalRecordDto.from(records.save(record));
+    }
+
+    @GetMapping("/{id}/pdf")
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR')")
+    public ResponseEntity<byte[]> getPdf(@PathVariable Long id, Principal principal) {
+        MedicalRecord record = records.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Dossier medical introuvable."));
+        
+        String userEmail = principal.getName();
+        boolean isPatient = record.getPatient().getEmail().equalsIgnoreCase(userEmail);
+        boolean isDoctor = record.getDoctor().getEmail().equalsIgnoreCase(userEmail);
+        if (!isPatient && !isDoctor) {
+            throw new IllegalStateException("Non autorise a acceder a ce dossier.");
+        }
+
+        byte[] pdfBytes = pdfGenerator.generatePrescriptionPdf(record);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "ordonnance-" + id + ".pdf");
+        
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
     }
 
     private void ensureDoctorCanAccessPatient(String doctorEmail, Long patientId) {

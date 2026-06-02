@@ -42,6 +42,7 @@ export interface AppointmentDto {
   durationMinutes: number;
   reason: string;
   bookedForName?: string;
+  relation?: string;
   status: 'REQUESTED' | 'CONFIRMED' | 'CANCELLED';
 }
 
@@ -52,6 +53,7 @@ export interface CreateAppointmentRequest {
   reason: string;
   patientEmail?: string;
   bookedForName?: string;
+  relation?: string;
 }
 
 export interface DoctorDto {

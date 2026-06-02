@@ -37,12 +37,22 @@ public class Appointment {
 
     private String bookedForName;
 
+    private String relation;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AppointmentStatus status = AppointmentStatus.REQUESTED;
 
     public Long getId() {
         return id;
+    }
+
+    public String getRelation() {
+        return relation;
+    }
+
+    public void setRelation(String relation) {
+        this.relation = relation;
     }
 
     public User getPatient() {

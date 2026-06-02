@@ -24,4 +24,8 @@ export class MedicalRecordService {
   getPatientRecords(patientId: number): Observable<MedicalRecordDto[]> {
     return this.http.get<MedicalRecordDto[]>(`${this.base}/doctor/patients/${patientId}`);
   }
+
+  downloadPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.base}/${id}/pdf`, { responseType: 'blob' });
+  }
 }

@@ -50,7 +50,7 @@ import { MedicalRecordDto } from '../../../core/models/user.model';
               </div>
 
               <div class="actions">
-                <button mat-flat-button color="primary" disabled>
+                <button mat-flat-button color="primary" (click)="download(p.id)">
                   <mat-icon>download</mat-icon>
                   Télécharger PDF
                 </button>
@@ -110,6 +110,22 @@ export class PrescriptionsComponent implements OnInit {
     this.medSvc.getMyRecords().subscribe({
       next: (r) => { this.allRecords.set(r); this.loading.set(false); },
       error: () => this.loading.set(false)
+    });
+  }
+
+  download(id: number): void {
+    this.medSvc.downloadPdf(id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ordonnance-${id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => console.error('Erreur de téléchargement PDF:', err)
     });
   }
 }

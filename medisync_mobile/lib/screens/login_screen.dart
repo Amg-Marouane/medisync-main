@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:local_auth/local_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback onLoginSuccess;
@@ -14,6 +15,43 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  final LocalAuthentication auth = LocalAuthentication();
+
+  Future<void> _authenticateBiometric() async {
+    try {
+      final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
+      final bool canAuthenticate = canAuthenticateWithBiometrics || await auth.isDeviceSupported();
+
+      if (!canAuthenticate) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Authentification biométrique non prise en charge ou non configurée.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      final bool didAuthenticate = await auth.authenticate(
+        localizedReason: 'Veuillez vous authentifier pour accéder à MediSync',
+        options: const AuthenticationOptions(
+          biometricOnly: true,
+          stickyAuth: true,
+        ),
+      );
+
+      if (didAuthenticate) {
+        widget.onLoginSuccess();
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur d\'authentification: $e'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -206,29 +244,54 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      // Login button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: widget.onLoginSuccess,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0066FF),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                      // Login button + Biometric button row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 52,
+                              child: ElevatedButton(
+                                onPressed: widget.onLoginSuccess,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0066FF),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 2,
+                                  shadowColor: const Color(0xFF0066FF).withOpacity(0.3),
+                                ),
+                                child: Text(
+                                  'Se connecter',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
                             ),
-                            elevation: 2,
-                            shadowColor: const Color(0xFF0066FF).withOpacity(0.3),
                           ),
-                          child: Text(
-                            'Se connecter',
-                            style: GoogleFonts.inter(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          const SizedBox(width: 12),
+                          SizedBox(
+                            height: 52,
+                            width: 52,
+                            child: OutlinedButton(
+                              onPressed: _authenticateBiometric,
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFF0066FF), width: 1.5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: EdgeInsets.zero,
+                              ),
+                              child: const Icon(
+                                Icons.fingerprint_rounded,
+                                color: Color(0xFF0066FF),
+                                size: 30,
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                       const SizedBox(height: 24),
                       // Divider

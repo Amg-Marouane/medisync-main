@@ -70,10 +70,24 @@ export const routes: Routes = [
           )
       },
       {
+        path: 'documents',
+        loadComponent: () =>
+          import('./features/patient/documents/patient-documents.component').then(
+            (m) => m.PatientDocumentsComponent
+          )
+      },
+      {
         path: 'profile',
         loadComponent: () =>
           import('./features/patient/profile/profile.component').then(
             (m) => m.ProfileComponent
+          )
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./shared/components/settings/settings.component').then(
+            (m) => m.SettingsComponent
           )
       }
     ]
@@ -114,6 +128,20 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/doctor/patients/patients.component').then(
             (m) => m.DoctorPatientsComponent
+          )
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/patient/profile/profile.component').then(
+            (m) => m.ProfileComponent
+          )
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./shared/components/settings/settings.component').then(
+            (m) => m.SettingsComponent
           )
       }
     ]
@@ -169,6 +197,20 @@ export const routes: Routes = [
           import('./features/secretary/billing/billing.component').then(
             (m) => m.BillingComponent
           )
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/patient/profile/profile.component').then(
+            (m) => m.ProfileComponent
+          )
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./shared/components/settings/settings.component').then(
+            (m) => m.SettingsComponent
+          )
       }
     ]
   },
@@ -222,6 +264,20 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/audit/audit.component').then(
             (m) => m.AuditComponent
+          )
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/patient/profile/profile.component').then(
+            (m) => m.ProfileComponent
+          )
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./shared/components/settings/settings.component').then(
+            (m) => m.SettingsComponent
           )
       }
     ]

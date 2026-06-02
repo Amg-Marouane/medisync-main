@@ -14,10 +14,17 @@ spring:
       hibernate:
         format_sql: true
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+
 server:
   port: 8080
 
 app:
+  document:
+    storage-dir: uploads/documents
   jwt:
     secret: "change-this-development-secret-key-change-this-development-secret-key"
     expiration-minutes: 120

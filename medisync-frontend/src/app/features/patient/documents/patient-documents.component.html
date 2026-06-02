@@ -1,0 +1,166 @@
+<div class="documents-page">
+  <!-- ─── Header ──────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1>Mes Documents Médicaux</h1>
+      <p class="subtitle">Téléversez et gérez vos documents : résultats d'analyse, radios, ordonnances…</p>
+    </div>
+    <span class="doc-count" *ngIf="documents().length">
+      {{ documents().length }} document{{ documents().length > 1 ? 's' : '' }}
+    </span>
+  </div>
+
+  <!-- ─── Upload Zone ─────────────────────────────────────────────── -->
+  <mat-card class="upload-card">
+    <div
+      class="drop-zone"
+      [class.dragging]="isDragging()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+    >
+      <mat-icon class="drop-icon">cloud_upload</mat-icon>
+      <p class="drop-text">
+        Glissez-déposez vos fichiers ici
+      </p>
+      <p class="drop-hint">ou</p>
+      <button mat-flat-button color="primary" (click)="fileInput.click()">
+        <mat-icon>attach_file</mat-icon>
+        Parcourir
+      </button>
+      <input
+        #fileInput
+        type="file"
+        hidden
+        multiple
+        accept=".pdf,.jpg,.jpeg,.png,.dcm"
+        (change)="onFileSelected($event)"
+      />
+      <p class="drop-formats">
+        Formats acceptés : PDF, JPG, PNG, DICOM &bull; Taille max : 20 Mo
+      </p>
+    </div>
+  </mat-card>
+
+  <!-- ─── Upload Queue ────────────────────────────────────────────── -->
+  <div class="upload-queue" *ngIf="uploadQueue().length">
+    <div class="queue-header">
+      <h3>File d'envoi ({{ uploadQueue().length }})</h3>
+      <div class="queue-actions">
+        <button mat-button color="primary" (click)="uploadAll()">
+          <mat-icon>upload</mat-icon> Tout envoyer
+        </button>
+        <button mat-button (click)="clearCompleted()">
+          <mat-icon>clear_all</mat-icon> Effacer terminés
+        </button>
+      </div>
+    </div>
+
+    <div class="queue-item" *ngFor="let item of uploadQueue()">
+      <div class="queue-item-info">
+        <mat-icon [style.color]="getIconColor(item.file.name.split('.').pop()?.toUpperCase() || '')">
+          {{ getIcon(item.file.name.split('.').pop()?.toUpperCase() || '') }}
+        </mat-icon>
+        <div class="queue-item-details">
+          <span class="queue-file-name">{{ item.file.name }}</span>
+          <span class="queue-file-size">{{ formatSize(item.file.size) }}</span>
+        </div>
+        <input
+          class="description-input"
+          [(ngModel)]="item.description"
+          placeholder="Description (optionnel)"
+          [disabled]="item.status !== 'pending'"
+        />
+      </div>
+
+      <div class="queue-item-status">
+        <mat-progress-bar
+          *ngIf="item.status === 'uploading'"
+          mode="determinate"
+          [value]="item.progress"
+        ></mat-progress-bar>
+
+        <div class="status-row">
+          <span class="status-label" [ngClass]="item.status">
+            <ng-container [ngSwitch]="item.status">
+              <ng-container *ngSwitchCase="'pending'">En attente</ng-container>
+              <ng-container *ngSwitchCase="'uploading'">{{ item.progress }}%</ng-container>
+              <ng-container *ngSwitchCase="'done'">
+                <mat-icon class="done-icon">check_circle</mat-icon> Envoyé
+              </ng-container>
+              <ng-container *ngSwitchCase="'error'">
+                <mat-icon class="error-icon">error</mat-icon> Erreur
+              </ng-container>
+            </ng-container>
+          </span>
+
+          <button
+            mat-icon-button
+            *ngIf="item.status === 'pending'"
+            matTooltip="Envoyer"
+            (click)="uploadItem(item)"
+          >
+            <mat-icon>upload</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            matTooltip="Retirer"
+            (click)="removeFromQueue(item)"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Filter Chips ────────────────────────────────────────────── -->
+  <div class="filter-bar" *ngIf="documents().length">
+    <button
+      *ngFor="let f of ['ALL', 'PDF', 'JPG', 'PNG', 'DICOM']"
+      mat-stroked-button
+      [class.active-filter]="selectedFilter() === f"
+      (click)="setFilter(f)"
+    >
+      {{ f === 'ALL' ? 'Tous' : f }}
+    </button>
+  </div>
+
+  <!-- ─── Documents Grid ──────────────────────────────────────────── -->
+  <div class="docs-grid" *ngIf="filteredDocuments.length; else emptyState">
+    <mat-card class="doc-card" *ngFor="let doc of filteredDocuments">
+      <div class="doc-thumbnail">
+        <mat-icon [style.color]="getIconColor(doc.documentType)" class="doc-type-icon">
+          {{ getIcon(doc.documentType) }}
+        </mat-icon>
+        <span class="doc-type-badge">{{ doc.documentType }}</span>
+      </div>
+
+      <mat-card-content>
+        <h4 class="doc-name" [matTooltip]="doc.originalName">{{ doc.originalName }}</h4>
+        <p class="doc-description" *ngIf="doc.description">{{ doc.description }}</p>
+        <div class="doc-meta">
+          <span>{{ formatSize(doc.fileSize) }}</span>
+          <span>{{ doc.uploadedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-icon-button matTooltip="Télécharger" (click)="downloadDocument(doc)">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Supprimer" color="warn" (click)="deleteDocument(doc)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state" *ngIf="!isLoading()">
+      <mat-icon class="empty-icon">folder_open</mat-icon>
+      <p *ngIf="selectedFilter() === 'ALL'">Aucun document téléversé pour le moment.</p>
+      <p *ngIf="selectedFilter() !== 'ALL'">Aucun document de type {{ selectedFilter() }}.</p>
+    </div>
+  </ng-template>
+</div>

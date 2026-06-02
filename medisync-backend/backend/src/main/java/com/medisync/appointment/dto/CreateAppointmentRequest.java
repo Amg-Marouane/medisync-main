@@ -12,6 +12,7 @@ public record CreateAppointmentRequest(
         @Positive int durationMinutes,
         @NotBlank String reason,
         String patientEmail,
-        String bookedForName
+        String bookedForName,
+        String relation
 ) {
 }

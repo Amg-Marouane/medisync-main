@@ -15,6 +15,7 @@ public record AppointmentDto(
         int durationMinutes,
         String reason,
         String bookedForName,
+        String relation,
         AppointmentStatus status
 ) {
     public static AppointmentDto from(Appointment appointment) {
@@ -29,6 +30,7 @@ public record AppointmentDto(
                 appointment.getDurationMinutes(),
                 appointment.getReason(),
                 appointment.getBookedForName(),
+                appointment.getRelation(),
                 appointment.getStatus()
         );
     }

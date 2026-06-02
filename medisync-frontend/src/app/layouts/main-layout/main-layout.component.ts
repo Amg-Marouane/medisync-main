@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,6 +11,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
 import { UserRole } from '../../core/models/user.model';
 import { LogoComponent } from '../../shared/components/logo.component';
+import { NotificationPanelComponent } from '../../shared/components/notification-panel/notification-panel.component';
 
 interface NavItem {
   label: string;
@@ -24,6 +25,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Rendez-vous', icon: 'event', link: '/patient/appointments' },
     { label: 'Dossier médical', icon: 'folder_shared', link: '/patient/medical-record' },
     { label: 'Ordonnances', icon: 'medication', link: '/patient/prescriptions' },
+    { label: 'Documents', icon: 'upload_file', link: '/patient/documents' },
     { label: 'Profil', icon: 'person', link: '/patient/profile' }
   ],
   doctor: [
@@ -61,13 +63,15 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     MatListModule,
     MatMenuModule,
     MatDividerModule,
-    LogoComponent
+    LogoComponent,
+    NotificationPanelComponent
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
 export class MainLayoutComponent {
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   readonly user = this.auth.user;
   readonly sidenavOpen = signal(true);
@@ -96,6 +100,16 @@ export class MainLayoutComponent {
 
   toggleSidenav(): void {
     this.sidenavOpen.update((v) => !v);
+  }
+
+  goToProfile(): void {
+    const role = this.auth.role();
+    if (role) this.router.navigate([`/${role}/profile`]);
+  }
+
+  goToSettings(): void {
+    const role = this.auth.role();
+    if (role) this.router.navigate([`/${role}/settings`]);
   }
 
   logout(): void {

@@ -5,6 +5,7 @@ import com.medisync.appointment.dto.CreateAppointmentRequest;
 import com.medisync.doctor.DoctorRepository;
 import com.medisync.user.User;
 import com.medisync.user.UserRepository;
+import com.medisync.mail.EmailService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,11 +32,13 @@ public class AppointmentService {
     private final AppointmentRepository appointments;
     private final DoctorRepository doctors;
     private final UserRepository users;
+    private final EmailService emailService;
 
-    public AppointmentService(AppointmentRepository appointments, DoctorRepository doctors, UserRepository users) {
+    public AppointmentService(AppointmentRepository appointments, DoctorRepository doctors, UserRepository users, EmailService emailService) {
         this.appointments = appointments;
         this.doctors = doctors;
         this.users = users;
+        this.emailService = emailService;
     }
 
     public AppointmentDto create(String patientEmail, CreateAppointmentRequest request) {
@@ -63,8 +66,25 @@ public class AppointmentService {
         appointment.setBookedForName(request.bookedForName() == null || request.bookedForName().isBlank()
                 ? patient.getFullName()
                 : request.bookedForName().trim());
+        appointment.setRelation(request.relation());
         appointment.setStatus(AppointmentStatus.REQUESTED);
-        return AppointmentDto.from(appointments.save(appointment));
+        
+        Appointment saved = appointments.save(appointment);
+        try {
+            String recipientEmail = patient.getEmail();
+            emailService.sendAppointmentConfirmation(
+                    recipientEmail,
+                    saved.getBookedForName(),
+                    saved.getDoctor().getUser().getFullName(),
+                    saved.getStartsAt().toLocalDate().toString(),
+                    saved.getStartsAt().toLocalTime().toString(),
+                    saved.getReason()
+            );
+        } catch (Exception e) {
+            // Ignored, fallback logger handles it inside emailService
+        }
+
+        return AppointmentDto.from(saved);
     }
 
     public AppointmentDto updateStatus(Long id, AppointmentStatus status, String doctorEmail) {
@@ -104,6 +124,7 @@ public class AppointmentService {
         appointment.setBookedForName(request.bookedForName() == null || request.bookedForName().isBlank()
                 ? appointment.getPatient().getFullName()
                 : request.bookedForName().trim());
+        appointment.setRelation(request.relation());
         return AppointmentDto.from(appointments.save(appointment));
     }
 
@@ -121,6 +142,7 @@ public class AppointmentService {
         appointment.setBookedForName(request.bookedForName() == null || request.bookedForName().isBlank()
                 ? appointment.getPatient().getFullName()
                 : request.bookedForName().trim());
+        appointment.setRelation(request.relation());
         return AppointmentDto.from(appointments.save(appointment));
     }
 
